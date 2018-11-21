@@ -30,6 +30,9 @@ protected:
   void addArgsToLinkStdlib(llvm::opt::ArgStringList &Arguments,
                            const JobContext &context) const;
 
+  void addProfileGenerationArgs(llvm::opt::ArgStringList &Arguments,
+                                const JobContext &context) const;
+
   void addDeploymentTargetArgs(llvm::opt::ArgStringList &Arguments,
                                const JobContext &context) const;
 
