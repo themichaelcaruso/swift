@@ -35,6 +35,7 @@ config.android_ndk_gcc_version = "@SWIFT_ANDROID_NDK_GCC_VERSION@"
 
 config.coverage_mode = "@SWIFT_ANALYZE_CODE_COVERAGE@"
 config.lldb_build_root = "@LLDB_BUILD_DIR@"
+config.libdispatch_build_path = "@SWIFT_PATH_TO_LIBDISPATCH_BUILD@"
 
 # Please remember to handle empty strings and/or unset variables correctly.
 
