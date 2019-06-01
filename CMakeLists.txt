@@ -232,6 +232,8 @@ set(SWIFT_ANDROID_API_LEVEL "" CACHE STRING
 
 set(SWIFT_ANDROID_NDK_PATH "" CACHE STRING
   "Path to the directory that contains the Android NDK tools that are executable on the build machine")
+set(SWIFT_VEX_SDK_PATH "" CACHE STRING
+  "Path to the directory that contains the Vex SDK tools that are executable on the build machine")
 set(SWIFT_ANDROID_NDK_GCC_VERSION "" CACHE STRING
   "The GCC version to use when building for Android. Currently only 4.9 is supported.")
 set(SWIFT_ANDROID_DEPLOY_DEVICE_PATH "" CACHE STRING
@@ -790,6 +792,19 @@ if(swift_build_android AND NOT "${SWIFT_HOST_VARIANT_SDK}" STREQUAL "ANDROID")
   configure_sdk_unix("Android" "${SWIFT_SDK_ANDROID_ARCHITECTURES}")
 endif()
 
+# Should we cross-compile the standard library for VexOS?
+is_sdk_requested(VEXOS swift_build_vexos)
+if(swift_build_vexos AND NOT "${SWIFT_HOST_VARIANT_SDK}" STREQUAL "VEXOS")
+  if ("${SWIFT_VEX_SDK_PATH}" STREQUAL "")
+    message(FATAL_ERROR "You must set SWIFT_VEX_SDK_PATH to cross-compile the Swift runtime for VexOS")
+  endif()
+
+  if("${SWIFT_SDK_VEXOS_ARCHITECTURES}" STREQUAL "")
+    set(SWIFT_SDK_VEXOS_ARCHITECTURES thumbv7)
+  endif()
+  configure_sdk_unix("VEXOS" "${SWIFT_SDK_VEXOS_ARCHITECTURES}")
+endif()
+
 # Should we cross-compile the standard library for Windows?
 is_sdk_requested(WINDOWS swift_build_windows)
 if(swift_build_windows AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -1083,7 +1098,7 @@ add_subdirectory(include)
 
 if(SWIFT_INCLUDE_TOOLS)
   add_subdirectory(lib)
-  
+
   # Always include this after including stdlib/!
   # Refer to the large comment above the add_subdirectory(stdlib) call.
   # https://bugs.swift.org/browse/SR-5975

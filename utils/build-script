@@ -179,6 +179,9 @@ class BuildScriptInvocation(object):
                 args.stdlib_deployment_targets.append(
                     StdlibDeploymentTarget.Android.aarch64.name)
 
+        if args.vexos:
+            args.stdlib_deployment_targets.append(
+                StdlibDeploymentTarget.VexOS.thumbv7.name)
         # Infer platform flags from manually-specified configure targets.
         # This doesn't apply to Darwin platforms, as they are
         # already configured. No building without the platform flag, though.
@@ -524,6 +527,10 @@ class BuildScriptInvocation(object):
                 "--android-icu-i18n", args.android_icu_i18n,
                 "--android-icu-i18n-include", args.android_icu_i18n_include,
                 "--android-icu-data", args.android_icu_data,
+            ]
+        if args.vexos:
+            impl_args += [
+                "--vex-sdk", args.vex_sdk
             ]
         if args.android_deploy_device_path:
             impl_args += [

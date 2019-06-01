@@ -11,6 +11,7 @@ function(set_if_arch_bitness var_name)
      "${SIA_ARCH}" STREQUAL "x86" OR
      "${SIA_ARCH}" STREQUAL "armv6" OR
      "${SIA_ARCH}" STREQUAL "armv7" OR
+     "${SIA_ARCH}" STREQUAL "thumbv7" OR
      "${SIA_ARCH}" STREQUAL "armv7k" OR
      "${SIA_ARCH}" STREQUAL "armv7s")
     set("${var_name}" "${SIA_CASE_32_BIT}" PARENT_SCOPE)
@@ -25,4 +26,3 @@ function(set_if_arch_bitness var_name)
     message(FATAL_ERROR "Unknown architecture: ${SIA_ARCH}")
   endif()
 endfunction()
-

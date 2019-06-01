@@ -2,6 +2,7 @@ include(SwiftList)
 include(SwiftXcodeSupport)
 include(SwiftWindowsSupport)
 include(SwiftAndroidSupport)
+include(SwiftVexSupport)
 
 # SWIFTLIB_DIR is the directory in the build tree where Swift resource files
 # should be placed.  Note that $CMAKE_CFG_INTDIR expands to "." for
@@ -51,7 +52,7 @@ function(_set_target_prefix_and_suffix target kind sdk)
   precondition(kind MESSAGE "kind is required")
   precondition(sdk MESSAGE "sdk is required")
 
-  if(${sdk} STREQUAL ANDROID)
+  if(${sdk} STREQUAL ANDROID OR ${sdk} STREQUAL VEXOS)
     if(${kind} STREQUAL STATIC)
       set_target_properties(${target} PROPERTIES PREFIX "lib" SUFFIX ".a")
     elseif(${kind} STREQUAL SHARED)
@@ -293,7 +294,7 @@ function(_add_variant_c_compile_flags)
   else()
     list(APPEND result "-DNDEBUG")
   endif()
-  
+
   if(SWIFT_ENABLE_RUNTIME_FUNCTION_COUNTERS)
     list(APPEND result "-DSWIFT_ENABLE_RUNTIME_FUNCTION_COUNTERS")
   endif()
@@ -310,6 +311,11 @@ function(_add_variant_c_compile_flags)
       list(APPEND result "\"${CMAKE_INCLUDE_FLAG_C}${path}\"")
     endforeach()
     list(APPEND result "-D__ANDROID_API__=${SWIFT_ANDROID_API_LEVEL}")
+  if("${CFLAGS_SDK}" STREQUAL "VEXOS")
+    swift_vexos_include_for_arch("${CFLAGS_ARCH}" "${CFLAGS_ARCH}_INCLUDE")
+    foreach(path IN LISTS CFLAGS_CXX_INCLUDES ${CFLAGS_ARCH}_INCLUDE)
+      list(APPEND result "\"${CMAKE_INCLUDE_FLAG_C}${path}\"")
+    endforeach()
   elseif(CFLAGS_SDK STREQUAL WINDOWS)
     swift_windows_include_for_arch(${CFLAGS_ARCH} ${CFLAGS_ARCH}_INCLUDE)
     foreach(path ${${CFLAGS_ARCH}_INCLUDE})
@@ -351,7 +357,7 @@ function(_add_variant_swift_compile_flags
   # On Windows, we don't set SWIFT_SDK_WINDOWS_PATH_ARCH_{ARCH}_PATH, so don't include it.
   # On Android the sdk is split to two different paths for includes and libs, so these
   # need to be set manually.
-  if (NOT "${sdk}" STREQUAL "WINDOWS" AND NOT "${sdk}" STREQUAL "ANDROID")
+  if (NOT "${sdk}" STREQUAL "WINDOWS" AND NOT "${sdk}" STREQUAL "ANDROID" AND NOT "${sdk}" STREQUAL "VEXOS")
     list(APPEND result "-sdk" "${SWIFT_SDK_${sdk}_ARCH_${arch}_PATH}")
   endif()
 
@@ -366,6 +372,13 @@ function(_add_variant_swift_compile_flags
 
   if("${sdk}" STREQUAL "ANDROID")
     swift_android_include_for_arch(${arch} ${arch}_swift_include)
+    foreach(path IN LISTS ${arch}_swift_include)
+      list(APPEND result "\"${CMAKE_INCLUDE_FLAG_C}${path}\"")
+    endforeach()
+  endif()
+
+  if("${sdk}" STREQUAL "VEXOS")
+    swift_vexos_include_for_arch(${arch} ${arch}_swift_include)
     foreach(path IN LISTS ${arch}_swift_include)
       list(APPEND result "\"${CMAKE_INCLUDE_FLAG_C}${path}\"")
     endforeach()
@@ -471,6 +484,18 @@ function(_add_variant_link_flags)
     list(APPEND link_libraries "${android_libcxx_path}/libc++abi.a")
     list(APPEND link_libraries "${android_libcxx_path}/libc++_shared.so")
     swift_android_lib_for_arch(${LFLAGS_ARCH} ${LFLAGS_ARCH}_LIB)
+    foreach(path IN LISTS ${LFLAGS_ARCH}_LIB)
+      list(APPEND library_search_directories ${path})
+    endforeach()
+  elseif("${LFLAGS_SDK}" STREQUAL "VEXOS")
+    list(APPEND link_libraries "dl" "log" "atomic" "icudataswift" "icui18nswift" "icuucswift")
+    # We provide our own C++ below, so we ask the linker not to do it. However,
+    # we need to add the math library, which is linked implicitly by libc++.
+    list(APPEND result "-nostdlib++" "-lm")
+    set(vexos_libcxx_path "${SWIFT_VEX_SDK_PATH}/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a")
+    list(APPEND link_libraries "${vexos_libcxx_path}/libc++abi.a")
+    list(APPEND link_libraries "${vexos_libcxx_path}/libc++_shared.so")
+    swift_vexos_lib_for_arch(${LFLAGS_ARCH} ${LFLAGS_ARCH}_LIB)
     foreach(path IN LISTS ${LFLAGS_ARCH}_LIB)
       list(APPEND library_search_directories ${path})
     endforeach()
