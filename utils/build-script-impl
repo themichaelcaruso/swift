@@ -127,6 +127,7 @@ KNOWN_SETTINGS=(
     skip-build-watchos-device   ""               "set to skip building Swift stdlibs for Apple watchOS devices (i.e. build simulators only)"
     skip-build-watchos-simulator ""              "set to skip building Swift stdlibs for Apple watchOS simulators (i.e. build devices only)"
     skip-build-android          ""               "set to skip building Swift stdlibs for Android"
+    skip-build-vex              ""               "set to skip building Swift stdlibs for VEX"
     skip-build-lldb             ""               "set to skip building LLDB"
     skip-build-llbuild          ""               "set to skip building llbuild"
     skip-build-libcxx           ""               "set to skip building libcxx"
@@ -168,6 +169,8 @@ KNOWN_SETTINGS=(
     skip-test-watchos-host      ""               "set to skip testing the host parts of the watchOS toolchain"
     skip-test-android           ""               "set to skip testing Swift stdlibs for Android"
     skip-test-android-host      ""               "set to skip testing the host parts of the Android toolchain"
+    skip-test-vexos               ""               "set to skip testing Swift stdlibs for VEX"
+    skip-test-vexos-host          ""               "set to skip testing the host parts of the VEX toolchain"
     validation-test             "0"              "set to run the validation test suite"
     long-test                   "0"              "set to run the long test suite"
     stress-test                 "0"              "set to run the stress test suite"
@@ -256,6 +259,7 @@ KNOWN_SETTINGS=(
     android-icu-data                   ""        "Path to libicudata.so"
     android-deploy-device-path         ""        "Path on an Android device to which built Swift stdlib products will be deployed"
     android-arch                       "armv7"   "The Android target architecture when building for Android"
+    vex-sdk                            ""        "An absolute path to the SDK that will be used as a libc implementation for VEX builds"
     check-args-only                    ""        "set to check all arguments are known. Exit with status 0 if success, non zero otherwise"
     common-cmake-options               ""        "CMake options used for all targets, including LLVM/Clang"
     cmark-cmake-options                ""        "CMake options used for all cmark targets"
@@ -1045,7 +1049,7 @@ function make_relative_symlink() {
 CROSS_COMPILE_HOSTS=($CROSS_COMPILE_HOSTS)
 for t in "${CROSS_COMPILE_HOSTS[@]}"; do
     case ${t} in
-        iphone* | appletv* | watch* | linux-armv6 | linux-armv7 )
+        iphone* | appletv* | watch* | linux-armv6 | linux-armv7 | vex-thumbv7 )
             ;;
         *)
             echo "Unknown host to cross-compile for: ${t}"
@@ -1443,6 +1447,15 @@ function calculate_targets_for_host() {
                     test_this_target=$(not ${SKIP_TEST_ANDROID})
                 fi
                 ;;
+            vexos-*)
+                swift_sdk="VEXOS"
+                build_for_this_target=$(not ${SKIP_BUILD_VEX})
+                if [[ ! "${SKIP_TEST_VEXOS_HOST}" ]] ; then
+                    test_host_only=1
+                else
+                    test_this_target=$(not ${SKIP_TEST_VEX})
+                fi
+                ;;
             *)
                 echo "Unknown compiler deployment target: ${stdlib_deployment_target}"
                 exit 1
@@ -1680,6 +1693,9 @@ function common_cross_c_flags() {
             ;;
         watchos-armv7k)
             echo -n " -arch armv7k -mwatchos-version-min=${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
+            ;;
+        vex-thumbv7)
+            echo -n " -arch thumbv7"
             ;;
         android-armv7)
             echo -n " -arch armv7"

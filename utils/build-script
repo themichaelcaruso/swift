@@ -119,6 +119,11 @@ class BuildScriptInvocation(object):
                     "--android-icu-i18n-include, and --android-icu-data "
                     "must be specified")
 
+        if args.vexos:
+            if args.vex_sdk is None:
+                diagnostics.fatal(
+                    "when building for VexOS, --vex-sdk must be specified")
+
         targets_needing_toolchain = [
             'build_indexstoredb',
             'build_sourcekitlsp',
@@ -191,6 +196,12 @@ class BuildScriptInvocation(object):
         if not args.android and len(android_tgts) > 0:
             args.android = True
             args.build_android = False
+
+        vex_tgts = [tgt for tgt in args.stdlib_deployment_targets
+                        if StdlibDeploymentTarget.VexOS.contains(tgt)]
+        if not args.vexos and len(vex_tgts) > 0:
+            args.vexos = True
+            args.build_vexos = False
 
 # ---
 
@@ -454,6 +465,8 @@ class BuildScriptInvocation(object):
             impl_args += ["--skip-build-watchos-simulator"]
         if not args.build_android:
             impl_args += ["--skip-build-android"]
+        if not args.build_vexos:
+            impl_args += ["--skip-build-vexos"]
 
         if not args.test and not args.long_test and not args.stress_test:
             impl_args += ["--skip-test-swift"]
@@ -496,6 +509,10 @@ class BuildScriptInvocation(object):
             impl_args += ["--skip-test-android"]
         if not args.test_android_host:
             impl_args += ["--skip-test-android-host"]
+        if not args.test_vexos:
+            impl_args += ["--skip-test-vexos"]
+        if not args.test_vexos_host:
+            impl_args += ["--skip-test-vexos-host"]
         if args.build_runtime_with_host_compiler:
             impl_args += ["--build-runtime-with-host-compiler"]
         if args.validation_test:

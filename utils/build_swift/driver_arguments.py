@@ -138,6 +138,7 @@ def _apply_default_arguments(args):
         args.build_tvos = False
         args.build_watchos = False
         args.build_android = False
+        args.build_vexos = False
         args.build_benchmarks = False
         args.build_external_benchmarks = False
         args.build_lldb = False
@@ -167,6 +168,9 @@ def _apply_default_arguments(args):
     if not args.android or not args.build_android:
         args.build_android = False
 
+    if not args.vexos or not args.build_vexos:
+        args.build_vexos = False
+        
     # --test-paths implies --test and/or --validation-test
     # depending on what directories/files have been specified.
     if args.test_paths:
@@ -203,6 +207,7 @@ def _apply_default_arguments(args):
         args.test_tvos = False
         args.test_watchos = False
         args.test_android = False
+        args.test_vexos = False
         args.test_indexstoredb = False
         args.test_sourcekitlsp = False
 
@@ -244,12 +249,19 @@ def _apply_default_arguments(args):
     if not args.test_android:
         args.test_android_host = False
 
+    if not args.build_vexos:
+        args.test_vexos = False
+        args.test_vexos_host = False
+
+    if not args.test_vexos:
+        args.test_vexos_host = False
+
     if not args.host_test:
         args.test_ios_host = False
         args.test_tvos_host = False
         args.test_watchos_host = False
         args.test_android_host = False
-
+        args.test_vexos_host = False
 
 def create_argument_parser():
     """Return a configured argument parser."""
@@ -325,6 +337,9 @@ def create_argument_parser():
 
     option('--android', toggle_true,
            help='also build for Android')
+
+    option('--vexos', toggle_true,
+           help='also build for VexOS')
 
     option('--swift-analyze-code-coverage', store,
            choices=['false', 'not-merged', 'merged'],
@@ -877,6 +892,9 @@ def create_argument_parser():
     option('--skip-build-android', toggle_false('build_android'),
            help='skip building Swift stdlibs for Android')
 
+    option('--skip-build-vexos', toggle_false('build_vexos'),
+           help='skip building Swift stdlibs for VexOS')
+
     option('--skip-build-benchmarks', toggle_false('build_benchmarks'),
            help='skip building Swift Benchmark Suite')
 
@@ -932,6 +950,14 @@ def create_argument_parser():
            toggle_false('test_android_host'),
            help='skip testing Android device targets on the host machine (the '
                 'phone itself)')
+
+    option('--skip-test-vexos',
+           toggle_false('test_vexos'),
+           help='skip testing all VexOS targets.')
+    option('--skip-test-vexos-host',
+           toggle_false('test_vexos_host'),
+           help='skip testing VexOS device targets on the host machine (the '
+                'brain itself)')
 
     option('--skip-test-indexstore-db', toggle_false('test_indexstoredb'),
            help='skip testing indexstore-db')
@@ -989,6 +1015,11 @@ def create_argument_parser():
            help='The Android target architecture when building for Android. '
                 'Currently only armv7 and aarch64 are supported. '
                 '%(default)s is the default.')
+
+    in_group('Build settings for VexOS')
+
+    option('--vex-sdk', store_path,
+           help='An absolute path to the VEX SDK')
 
     # -------------------------------------------------------------------------
     in_group('Unsupported options')
