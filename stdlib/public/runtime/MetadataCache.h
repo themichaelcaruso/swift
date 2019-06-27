@@ -755,7 +755,10 @@ private:
   /// Additional storage that is only ever accessed under the lock.
   union LockedStorage_t {
     /// The thread that is allocating the entry.
-    std::thread::id AllocatingThread;
+
+    #if defined(__VEXOS__)
+      int32_t AllocatingThread;
+    #else
       std::thread::id AllocatingThread;
     #endif
 
