@@ -14,7 +14,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if defined(__CYGWIN__) || defined(__ANDROID__) || defined(__HAIKU__)
+#if defined(__CYGWIN__) || defined(__ANDROID__) || defined(__HAIKU__) || defined(__VEXOS__)
 #define SWIFT_SUPPORTS_BACKTRACE_REPORTING 0
 #else
 #define SWIFT_SUPPORTS_BACKTRACE_REPORTING 1
@@ -241,7 +241,7 @@ reportOnCrash(uint32_t flags, const char *message)
   } else {
     newMessage = strdup(message);
   }
-  
+
   CRSetCrashLogMessage(newMessage);
 
   crashlogLock.unlock();
@@ -362,9 +362,9 @@ swift::warningv(uint32_t flags, const char *format, va_list args)
 #pragma GCC diagnostic ignored "-Wuninitialized"
   swift_vasprintf(&log, format, args);
 #pragma GCC diagnostic pop
-  
+
   reportNow(flags, log);
-  
+
   free(log);
 }
 

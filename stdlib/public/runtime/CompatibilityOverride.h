@@ -21,6 +21,7 @@
 #include "swift/Runtime/Metadata.h"
 #include "swift/Runtime/Once.h"
 #include <type_traits>
+#include <mutex>
 
 namespace swift {
 

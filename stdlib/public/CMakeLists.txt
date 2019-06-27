@@ -21,7 +21,7 @@ list(APPEND SWIFT_RUNTIME_SWIFT_COMPILE_FLAGS "-Xfrontend" "-verify-syntax-tree"
 if(SWIFT_COMPILER_IS_MSVC_LIKE)
   list(APPEND SWIFT_RUNTIME_CXX_FLAGS "/W3")
 else()
-  list(APPEND SWIFT_RUNTIME_CXX_FLAGS "-Wall")
+  #list(APPEND SWIFT_RUNTIME_CXX_FLAGS "-Wall")
 endif()
 
 set(SWIFT_RUNTIME_CORE_CXX_FLAGS "${SWIFT_RUNTIME_CXX_FLAGS}")
@@ -83,4 +83,3 @@ if(SWIFT_BUILD_SDK_OVERLAY)
     add_subdirectory(Windows)
   endif()
 endif()
-

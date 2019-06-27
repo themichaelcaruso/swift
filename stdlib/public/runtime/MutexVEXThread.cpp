@@ -15,7 +15,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if !defined(_WIN32) && !defined(__VEXOS__)
+// NOTE: Like Windows, here rwlocks are just Mutexes with a different name, since VexOS doesn't have defines for rwlock
+// https://www.reddit.com/r/rust/comments/5bx34b/mutex_vs_rwlock/
+
+#if defined(__VEXOS__)
 #include "swift/Runtime/Mutex.h"
 
 #include "swift/Runtime/Debug.h"
@@ -111,36 +114,36 @@ bool MutexPlatformHelper::try_lock(pthread_mutex_t &mutex) {
 }
 
 void ReadWriteLockPlatformHelper::init(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_init(&rwlock, nullptr));
+  reportError(pthread_mutex_init(&rwlock, nullptr));
 }
 
 void ReadWriteLockPlatformHelper::destroy(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_destroy(&rwlock));
+  reportError(pthread_mutex_destroy(&rwlock));
 }
 
 void ReadWriteLockPlatformHelper::readLock(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_rdlock(&rwlock));
+  reportError(pthread_mutex_lock(&rwlock));
 }
 
 bool ReadWriteLockPlatformHelper::try_readLock(pthread_rwlock_t &rwlock) {
-  returnTrueOrReportError(pthread_rwlock_tryrdlock(&rwlock),
+  returnTrueOrReportError(pthread_mutex_trylock(&rwlock),
                           /* returnFalseOnEBUSY = */ true);
 }
 
 void ReadWriteLockPlatformHelper::writeLock(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_wrlock(&rwlock));
+  reportError(pthread_mutex_lock(&rwlock));
 }
 
 bool ReadWriteLockPlatformHelper::try_writeLock(pthread_rwlock_t &rwlock) {
-  returnTrueOrReportError(pthread_rwlock_trywrlock(&rwlock),
+  returnTrueOrReportError(pthread_mutex_trylock(&rwlock),
                           /* returnFalseOnEBUSY = */ true);
 }
 
 void ReadWriteLockPlatformHelper::readUnlock(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_unlock(&rwlock));
+  reportError(pthread_mutex_unlock(&rwlock));
 }
 
 void ReadWriteLockPlatformHelper::writeUnlock(pthread_rwlock_t &rwlock) {
-  reportError(pthread_rwlock_unlock(&rwlock));
+  reportError(pthread_mutex_unlock(&rwlock));
 }
 #endif

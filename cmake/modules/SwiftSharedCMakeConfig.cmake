@@ -97,14 +97,14 @@ macro(swift_common_standalone_build_config_llvm product)
   include(AddSwiftTableGen) # This imports TableGen from LLVM.
   include(HandleLLVMOptions)
 
-  # HACK: Not all targets support -z,defs as a linker flag. 
+  # HACK: Not all targets support -z,defs as a linker flag.
   #
   # Normally, LLVM would only add it as an option for known ELF targets;
-  # however, due to the custom scheme Swift uses for cross-compilation, the 
-  # CMAKE_SHARED_LINKER_FLAGS are determined based on the host system and 
+  # however, due to the custom scheme Swift uses for cross-compilation, the
+  # CMAKE_SHARED_LINKER_FLAGS are determined based on the host system and
   # then applied to all targets. This causes issues in cross-compiling to
   # Windows from a Linux host.
-  # 
+  #
   # To work around this, we unconditionally remove the flag here and then
   # selectively add it to the per-target link flags; this is currently done in
   # add_swift_host_library and add_swift_target_library within AddSwift.cmake.
@@ -266,11 +266,11 @@ macro(swift_common_cxx_warnings)
     append_if(CXX_SUPPORTS_WE4062 "/we4062" CMAKE_CXX_FLAGS)
   endif()
 
-  check_cxx_compiler_flag("-Werror -Wdocumentation" CXX_SUPPORTS_DOCUMENTATION_FLAG)
-  append_if(CXX_SUPPORTS_DOCUMENTATION_FLAG "-Wdocumentation" CMAKE_CXX_FLAGS)
+  #check_cxx_compiler_flag("-Werror -Wdocumentation" CXX_SUPPORTS_DOCUMENTATION_FLAG)
+  #append_if(CXX_SUPPORTS_DOCUMENTATION_FLAG "-Wdocumentation" CMAKE_CXX_FLAGS)
 
-  check_cxx_compiler_flag("-Werror -Wimplicit-fallthrough" CXX_SUPPORTS_IMPLICIT_FALLTHROUGH_FLAG)
-  append_if(CXX_SUPPORTS_IMPLICIT_FALLTHROUGH_FLAG "-Wimplicit-fallthrough" CMAKE_CXX_FLAGS)
+  #check_cxx_compiler_flag("-Werror -Wimplicit-fallthrough" CXX_SUPPORTS_IMPLICIT_FALLTHROUGH_FLAG)
+  #append_if(CXX_SUPPORTS_IMPLICIT_FALLTHROUGH_FLAG "-Wimplicit-fallthrough" CMAKE_CXX_FLAGS)
 
   # Check for -Wunreachable-code-aggressive instead of -Wunreachable-code, as that indicates
   # that we have the newer -Wunreachable-code implementation.

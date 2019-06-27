@@ -330,6 +330,11 @@ std::string toolchains::Android::getTargetForLinker() const {
   return T.str();
 }
 
+std::string toolchains::VexOS::getTargetForLinker() const {
+    return "thumbv7-none-eabi";
+}
+
+
 bool toolchains::Android::shouldProvideRPathToLinker() const { return false; }
 
 std::string toolchains::Cygwin::getDefaultLinker() const {

@@ -18,7 +18,12 @@
 #include "swift/Runtime/Metadata.h"
 #include "swift/Runtime/Mutex.h"
 #include <condition_variable>
-#include <thread>
+
+#if defined(__VEXOS__)
+  #include <vex_thread.h>
+#else
+  #include <thread>
+#endif
 
 #ifndef SWIFT_DEBUG_RUNTIME
 #define SWIFT_DEBUG_RUNTIME 0
@@ -174,7 +179,7 @@ public:
     auto result = Storage.getOrInsert(key, args...);
     auto entry = result.first;
 
-    // If we are not inserting the entry, we need to potentially block on 
+    // If we are not inserting the entry, we need to potentially block on
     // currently satisfies our conditions.
     if (!result.second) {
       auto status =
@@ -751,6 +756,8 @@ private:
   union LockedStorage_t {
     /// The thread that is allocating the entry.
     std::thread::id AllocatingThread;
+      std::thread::id AllocatingThread;
+    #endif
 
     /// The completion queue.
     MetadataCompletionQueueEntry *CompletionQueue;
@@ -785,7 +792,7 @@ private:
     /// up to be enqueued at least once.  (It's possible that the actual
     /// enqueuing never actually succeeded.)  The metadata's completion
     /// queue can be found at LockedStorage.QueueEntry->CompletionQueue.
-    /// 
+    ///
     /// The cache entry owns its queue entry, but it must not destroy it
     /// while it is blocked on another queue.
     QueueEntry,
@@ -809,7 +816,11 @@ public:
   MetadataCacheEntryBase()
       : LockedStorageKind(LSK::AllocatingThread),
         TrackingInfo(PrivateMetadataTrackingInfo::initial().getRawValue()) {
-    LockedStorage.AllocatingThread = std::this_thread::get_id();
+        #if defined(__VEXOS__)
+          LockedStorage.AllocatingThread = vex::this_thread::get_id();
+        #else
+          LockedStorage.AllocatingThread = std::this_thread::get_id();
+        #endif
   }
 
   // Note that having an explicit destructor here is important to make this
@@ -822,7 +833,11 @@ public:
 
   bool isBeingAllocatedByCurrentThread() const {
     return LockedStorageKind == LSK::AllocatingThread &&
-           LockedStorage.AllocatingThread == std::this_thread::get_id();
+           #if defined(__VEXOS__)
+             LockedStorage.AllocatingThread == vex::this_thread::get_id();
+           #else
+             LockedStorage.AllocatingThread == std::this_thread::get_id();
+           #endif
   }
 
   /// Given that this thread doesn't own the right to initialize the

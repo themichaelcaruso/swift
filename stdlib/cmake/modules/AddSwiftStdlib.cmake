@@ -33,7 +33,6 @@ function(add_swift_target_executable name)
     foreach(arch ${SWIFT_SDK_${sdk}_ARCHITECTURES})
       set(VARIANT_SUFFIX "-${SWIFT_SDK_${sdk}_LIB_SUBDIR}-${arch}")
       set(VARIANT_NAME "${name}${VARIANT_SUFFIX}")
-
       set(SWIFTEXE_TARGET_EXCLUDE_FROM_ALL_FLAG_CURRENT
           ${SWIFTEXE_TARGET_EXCLUDE_FROM_ALL_FLAG})
       if(NOT "${VARIANT_SUFFIX}" STREQUAL "${SWIFT_PRIMARY_VARIANT_SUFFIX}")

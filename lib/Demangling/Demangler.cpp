@@ -19,6 +19,7 @@
 #include "swift/Demangling/ManglingMacros.h"
 #include "swift/Demangling/Punycode.h"
 #include "swift/Strings.h"
+#include <cstdio>
 
 using namespace swift;
 using namespace Mangle;
@@ -406,7 +407,7 @@ void NodeFactory::freeSlabs(Slab *slab) {
     slab = prev;
   }
 }
-  
+
 void NodeFactory::clear() {
   assert(!isBorrowed);
   if (CurrentSlab) {
@@ -415,7 +416,7 @@ void NodeFactory::clear() {
 #endif
 
     freeSlabs(CurrentSlab->Previous);
-    
+
     // Recycle the last allocated slab.
     // Note that the size of the last slab is at least as big as all previous
     // slabs combined. Therefore it's not worth the effort of reusing all slabs.
@@ -499,7 +500,7 @@ void Demangler::init(StringRef MangledName) {
   Text = MangledName;
   Pos = 0;
 }
-  
+
 NodePointer Demangler::demangleSymbol(StringRef MangledName) {
   init(MangledName);
 
@@ -659,7 +660,7 @@ NodePointer Demangler::demangleSymbolicReference(unsigned char rawKind,
   int32_t value;
   memcpy(&value, Text.data() + Pos, 4);
   Pos += 4;
-  
+
   // Map the encoded kind to a specific kind and directness.
   SymbolicReferenceKind kind;
   Directness direct;
@@ -679,7 +680,7 @@ NodePointer Demangler::demangleSymbolicReference(unsigned char rawKind,
   default:
     return nullptr;
   }
-  
+
   // Use the resolver, if any, to produce the demangling tree the symbolic
   // reference represents.
   NodePointer resolved = nullptr;
@@ -688,7 +689,7 @@ NodePointer Demangler::demangleSymbolicReference(unsigned char rawKind,
   // With no resolver, or a resolver that failed, refuse to demangle further.
   if (!resolved)
     return nullptr;
-  
+
   // Types register as substitutions even when symbolically referenced.
   if (kind == SymbolicReferenceKind::Context &&
       resolved->getKind() != Node::Kind::OpaqueTypeDescriptorSymbolicReference)
@@ -1346,7 +1347,7 @@ NodePointer Demangler::popTypeList() {
         return nullptr;
       Root->addChild(Ty, *this);
     } while (!firstElem);
-    
+
     Root->reverseChildren();
   }
   return Root;
@@ -1362,7 +1363,7 @@ NodePointer Demangler::popProtocol() {
 
     return Type;
   }
-  
+
   if (NodePointer SymbolicRef = popNode(Node::Kind::ProtocolSymbolicReference)){
     return SymbolicRef;
   }
@@ -1533,7 +1534,7 @@ bool Demangler::demangleBoundGenerics(Vector<NodePointer> &TypeListList,
   }
   if (RetroactiveConformances)
     RetroactiveConformances->reverseChildren();
-  
+
   for (;;) {
     NodePointer TList = createNode(Node::Kind::TypeList);
     TypeListList.push_back(TList, *this);
@@ -1541,7 +1542,7 @@ bool Demangler::demangleBoundGenerics(Vector<NodePointer> &TypeListList,
       TList->addChild(Ty, *this);
     }
     TList->reverseChildren();
-    
+
     if (popNode(Node::Kind::EmptyList))
       break;
     if (!popNode(Node::Kind::FirstElementMarker))
@@ -1553,7 +1554,7 @@ bool Demangler::demangleBoundGenerics(Vector<NodePointer> &TypeListList,
 NodePointer Demangler::demangleBoundGenericType() {
   NodePointer RetroactiveConformances;
   Vector<NodePointer> TypeListList(*this, 4);
-  
+
   if (!demangleBoundGenerics(TypeListList, RetroactiveConformances))
     return nullptr;
 
@@ -1589,7 +1590,7 @@ NodePointer Demangler::demangleBoundGenericArgs(NodePointer Nominal,
   // TODO: This would be a lot easier if we represented bound generic args
   // flatly in the demangling tree, since that's how they're mangled and also
   // how the runtime generally wants to consume them.
-  
+
   if (!Nominal)
     return nullptr;
 
@@ -1875,7 +1876,7 @@ NodePointer Demangler::demangleMetatype() {
       return nullptr;
   }
 }
-  
+
 NodePointer Demangler::demanglePrivateContextDescriptor() {
   switch (nextChar()) {
   case 'E': {
@@ -1897,7 +1898,7 @@ NodePointer Demangler::demanglePrivateContextDescriptor() {
     auto Context = popContext();
     if (!Context)
       return nullptr;
-    
+
     auto node = createNode(Node::Kind::AnonymousDescriptor);
     node->addChild(Context, *this);
     node->addChild(Discriminator, *this);
@@ -1953,7 +1954,7 @@ NodePointer Demangler::demangleArchetype() {
       opaque->addChild(boundGenerics, *this);
       if (retroactiveConformances)
         opaque->addChild(retroactiveConformances, *this);
-      
+
       auto opaqueTy = createType(opaque);
       addSubstitution(opaqueTy);
       return opaqueTy;
@@ -2033,7 +2034,7 @@ NodePointer Demangler::popAssocTypeName() {
   addChild(AssocTy, Proto);
   return AssocTy;
 }
-  
+
 NodePointer Demangler::popAssocTypePath() {
   NodePointer AssocTypePath = createNode(Node::Kind::AssocTypePath);
   bool firstElem = false;
@@ -2177,7 +2178,7 @@ NodePointer Demangler::demangleThunkOrSpecialization() {
         types.push_back(node);
         node = popNode();
       } while (node && node->getKind() == Node::Kind::Type);
-      
+
       NodePointer result;
       if (node) {
         if (node->getKind() == Node::Kind::DependentGenericSignature) {
@@ -2248,7 +2249,7 @@ NodePointer Demangler::demangleThunkOrSpecialization() {
 
       NodePointer genericSig = nullptr;
       std::vector<NodePointer> types;
-      
+
       auto node = popNode();
       if (node) {
         if (node->getKind() == Node::Kind::DependentGenericSignature) {
@@ -2261,14 +2262,14 @@ NodePointer Demangler::demangleThunkOrSpecialization() {
       } else {
         return nullptr;
       }
-      
+
       while (auto node = popNode()) {
         if (node->getKind() != Node::Kind::Type) {
           return nullptr;
         }
         types.push_back(node);
       }
-      
+
       NodePointer result = createNode(nodeKind);
       for (auto i = types.rbegin(), e = types.rend(); i != e; ++i) {
         result->addChild(*i, *this);
@@ -2765,7 +2766,7 @@ NodePointer Demangler::demangleSpecialType() {
         if (!genericArgs)
           return nullptr;
       }
-      
+
       auto fieldTypes = popTypeList();
       if (!fieldTypes)
         return nullptr;
@@ -3026,10 +3027,10 @@ NodePointer Demangler::demangleGenericSignature(bool hasParamCounts) {
 }
 
 NodePointer Demangler::demangleGenericRequirement() {
-  
+
   enum { Generic, Assoc, CompoundAssoc, Substitution } TypeKind;
   enum { Protocol, BaseClass, SameType, Layout } ConstraintKind;
-  
+
   switch (nextChar()) {
     case 'c': ConstraintKind = BaseClass; TypeKind = Assoc; break;
     case 'C': ConstraintKind = BaseClass; TypeKind = CompoundAssoc; break;

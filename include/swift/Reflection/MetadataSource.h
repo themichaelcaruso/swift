@@ -24,6 +24,7 @@
 
 #include "llvm/ADT/Optional.h"
 #include "llvm/Support/Casting.h"
+#include <cerrno>
 
 using llvm::cast;
 

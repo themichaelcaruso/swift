@@ -33,9 +33,15 @@ namespace swift {
   // This prototype is copied instead including the header file.
   void _swift_once_f(uintptr_t *predicate, void *context,
                      void (*function)(void *));
-  using OnceToken_t = unsigned long;
+  using OnceToken_t = unsigned int;
 # define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) \
   _swift_once_f(&TOKEN, CONTEXT, FUNC)
+#elif defined(__VEXOS__)
+  extern "C" void swift_once_f(uintptr_t *predicate,
+                     void (*function)(void *), void *context);
+  using OnceToken_t = unsigned long;
+#define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) \
+  swift_once_f(&TOKEN, FUNC, CONTEXT)
 #else
   using OnceToken_t = std::once_flag;
 # define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) \
@@ -52,10 +58,10 @@ template <class T> class Lazy {
   static void defaultInitCallback(void *ValueAddr) {
     ::new (ValueAddr) T();
   }
-  
+
 public:
   using Type = T;
-  
+
   T &get(void (*initCallback)(void *) = defaultInitCallback);
 
   template<typename Arg1>

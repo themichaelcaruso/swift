@@ -54,6 +54,7 @@ set(swift_runtime_sources
     Metadata.cpp
     MetadataLookup.cpp
     MutexPThread.cpp
+    MutexVEXThread.cpp
     MutexWin32.cpp
     Numeric.cpp
     Once.cpp
@@ -93,8 +94,15 @@ list(APPEND swift_runtime_library_compile_flags -DswiftCore_EXPORTS)
 list(APPEND swift_runtime_library_compile_flags -I${SWIFT_SOURCE_DIR}/include)
 
 set(sdk "${SWIFT_HOST_VARIANT_SDK}")
+message("Using VEX imports")
+swift_vexos_include("include_var")
+foreach(path IN LISTS "include_var")
+  message("Adding ${path}")
+  list(APPEND swift_runtime_library_compile_flags "-I${path}")
+endforeach()
+
 if(SWIFT_BUILD_STATIC_STDLIB AND "${sdk}" STREQUAL "LINUX")
-  list(REMOVE_ITEM swift_runtime_sources ImageInspectionELF.cpp)
+  #list(REMOVE_ITEM swift_runtime_sources ImageInspectionELF.cpp)
   set(static_binary_lnk_file_list)
   string(TOLOWER "${sdk}" lowercase_sdk)
 
@@ -253,4 +261,3 @@ foreach(sdk ${SWIFT_CONFIGURED_SDKS})
     endif()
   endforeach()
 endforeach()
-

@@ -42,9 +42,12 @@ using namespace swift;
 #elif defined(_WIN32)
 #  define MALLOC_ALIGN_MASK 7
 
+#elif defined(__VEXOS__)
+#  define MALLOC_ALIGN_MASK 7
 #else
 // Unknown alignment, but the standard requires alignment suitable for the largest
 // standard types.
+  //I DON'T KNOW WHO WROTE THIS BUT SERIOUSLY???
 #  define MALLOC_ALIGN_MASK std::max(alignof(void *), alignof(double))
 
 #endif

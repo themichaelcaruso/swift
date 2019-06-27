@@ -111,7 +111,7 @@ public:
 #if SWIFT_OBJC_INTEROP
   bool objectConformsToObjCProtocol(const void *theObject,
                                     ProtocolDescriptorRef protocol);
-  
+
   bool classConformsToObjCProtocol(const void *theClass,
                                    ProtocolDescriptorRef protocol);
 #endif
@@ -245,7 +245,7 @@ public:
   bool
   _contextDescriptorMatchesMangling(const ContextDescriptor *context,
                                     Demangle::NodePointer node);
-  
+
   const ContextDescriptor *
   _searchConformancesByMangledTypeName(Demangle::NodePointer node);
 
@@ -324,7 +324,7 @@ public:
       : sourceIsMetadata(true), baseContext(base->getTypeContextDescriptor()),
         genericArgs(base ? (const void * const *)base->getGenericArgs()
                          : nullptr) { }
-    
+
     /// Produce substitutions from the given instantiation arguments for the
     /// given context.
     explicit SubstGenericParametersFromMetadata(const ContextDescriptor *base,
@@ -339,7 +339,7 @@ public:
                const void * const *arguments)
       : sourceIsMetadata(false), environment(environment),
         genericArgs(arguments) { }
-    
+
     const void * const *getGenericArgs() const { return genericArgs; }
 
     const Metadata *getMetadata(unsigned depth, unsigned index) const;
@@ -451,7 +451,7 @@ public:
       dest = newValue;
   }
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) || defined(__VEXOS__)
   void _swift_once_f(uintptr_t *predicate, void *context,
                      void (*function)(void *));
 #endif
@@ -463,7 +463,7 @@ public:
     return c;
 #endif
   }
-  
+
   template<> inline const ClassMetadata *
   Metadata::getClassObject() const {
     switch (getKind()) {
@@ -505,7 +505,7 @@ public:
   _buildDemanglingForContext(const ContextDescriptor *context,
                              llvm::ArrayRef<NodePointer> demangledGenerics,
                              Demangle::Demangler &Dem);
-  
+
   /// Symbolic reference resolver that produces the demangling tree for the
   /// referenced context.
   class ResolveToDemanglingForContext {
@@ -513,7 +513,7 @@ public:
   public:
     explicit ResolveToDemanglingForContext(Demangle::Demangler &Dem)
       : Dem(Dem) {}
-    
+
     Demangle::NodePointer operator()(Demangle::SymbolicReferenceKind kind,
                                      Demangle::Directness isIndirect,
                                      int32_t offset,
@@ -527,13 +527,13 @@ public:
   public:
     explicit ResolveAsSymbolicReference(Demangle::Demangler &Dem)
       : Dem(Dem) {}
-    
+
     Demangle::NodePointer operator()(Demangle::SymbolicReferenceKind kind,
                                      Demangle::Directness isIndirect,
                                      int32_t offset,
                                      const void *base);
   };
-  
+
   /// Demangler resolver that turns resolved symbolic references into their
   /// demangling trees.
   class ExpandResolvedSymbolicReferences {
@@ -541,7 +541,7 @@ public:
   public:
     explicit ExpandResolvedSymbolicReferences(Demangle::Demangler &Dem)
       : Dem(Dem) {}
-    
+
     Demangle::NodePointer operator()(Demangle::SymbolicReferenceKind kind,
                                      const void *resolvedReference);
   };

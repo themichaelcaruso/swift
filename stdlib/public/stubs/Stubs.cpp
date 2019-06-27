@@ -16,6 +16,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if defined(__VEXOS__)
+  #include <vex_thread.h>
+#endif
+
 #if defined(__FreeBSD__)
 #define _WITH_GETLINE
 #endif
@@ -41,6 +45,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
 #if defined(__CYGWIN__) || defined(_WIN32) || defined(__HAIKU__)
 #include <sstream>
 #include <cmath>
@@ -67,8 +72,9 @@ static float swift_strtof_l(const char *nptr, char **endptr, locale_t loc) {
 #define strtod_l swift_strtod_l
 #define strtof_l swift_strtof_l
 #endif
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__VEXOS__)
 #include <locale.h>
+#include <stdlib.h>
 #else
 #include <xlocale.h>
 #endif
@@ -155,7 +161,7 @@ static inline locale_t getCLocale() {
   // as C locale.
   return nullptr;
 }
-#elif defined(__CYGWIN__) || defined(__HAIKU__)
+#elif defined(__CYGWIN__) || defined(__HAIKU__) || defined(__VEXOS__)
 // In Cygwin, getCLocale() is not used.
 #elif defined(_WIN32)
 static _locale_t makeCLocale() {
@@ -186,7 +192,7 @@ static locale_t getCLocale() {
 #if !SWIFT_DTOA_FLOAT80_SUPPORT
 #if defined(__APPLE__)
 #define swift_snprintf_l snprintf_l
-#elif defined(__CYGWIN__) || defined(_WIN32) || defined(__HAIKU__)
+#elif defined(__CYGWIN__) || defined(_WIN32) || defined(__HAIKU__) || defined(__VEXOS__)
 // swift_snprintf_l() is not used.
 #else
 static int swift_snprintf_l(char *Str, size_t StrSize, locale_t Locale,
@@ -198,7 +204,7 @@ static int swift_snprintf_l(char *Str, size_t StrSize, locale_t Locale,
 
   va_list Args;
   va_start(Args, Format);
-  int Result = std::vsnprintf(Str, StrSize, Format, Args);
+  int Result = vsnprintf(Str, StrSize, Format, Args);
   va_end(Args);
 
   uselocale(OldLocale);
@@ -209,7 +215,7 @@ static int swift_snprintf_l(char *Str, size_t StrSize, locale_t Locale,
 
 template <typename T>
 static uint64_t swift_floatingPointToString(char *Buffer, size_t BufferLength,
-                                            T Value, const char *Format, 
+                                            T Value, const char *Format,
                                             bool Debug) {
   if (BufferLength < 32)
     swift::crash("swift_floatingPointToString: insufficient buffer size");
@@ -220,7 +226,7 @@ static uint64_t swift_floatingPointToString(char *Buffer, size_t BufferLength,
   }
 
 #if defined(__CYGWIN__) || defined(_WIN32) || defined(__HAIKU__)
-  // Cygwin does not support uselocale(), but we can use the locale feature 
+  // Cygwin does not support uselocale(), but we can use the locale feature
   // in stringstream object.
   std::ostringstream ValueStream;
   ValueStream.width(0);
@@ -358,7 +364,7 @@ static bool swift_stringIsSignalingNaN(const char *nptr) {
 }
 
 #if defined(__CYGWIN__) || defined(_WIN32) || defined(__HAIKU__)
-// Cygwin does not support uselocale(), but we can use the locale feature 
+// Cygwin does not support uselocale(), but we can use the locale feature
 // in stringstream object.
 template <typename T>
 static const char *_swift_stdlib_strtoX_clocale_impl(
@@ -367,7 +373,7 @@ static const char *_swift_stdlib_strtoX_clocale_impl(
     *outResult = std::numeric_limits<T>::signaling_NaN();
     return nptr + std::strlen(nptr);
   }
-  
+
   std::istringstream ValueStream(nptr);
   ValueStream.imbue(std::locale::classic());
   T ParsedValue;
@@ -454,7 +460,7 @@ static const char *_swift_stdlib_strtoX_clocale_impl(
     *outResult = std::numeric_limits<T>::signaling_NaN();
     return nptr + std::strlen(nptr);
   }
-  
+
   char *EndPtr;
   errno = 0;
   const auto result = posixImpl(nptr, &EndPtr, getCLocale());
@@ -465,7 +471,7 @@ static const char *_swift_stdlib_strtoX_clocale_impl(
   }
   return EndPtr;
 }
-    
+
 const char *swift::_swift_stdlib_strtold_clocale(
   const char * nptr, void *outResult) {
   return _swift_stdlib_strtoX_clocale_impl(
@@ -506,6 +512,5 @@ int swift::_swift_stdlib_putc_stderr(int C) {
 }
 
 size_t swift::_swift_stdlib_getHardwareConcurrency() {
-  return std::thread::hardware_concurrency();
+  return vex::thread::hardware_concurrency();
 }
-

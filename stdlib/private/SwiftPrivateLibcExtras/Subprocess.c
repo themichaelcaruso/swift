@@ -55,4 +55,3 @@ int _stdlib_posix_spawn(pid_t *__restrict pid, const char * __restrict path,
 }
 
 #endif // !defined(__ANDROID__) && !defined(__HAIKU__) && (!defined(_WIN32) || defined(__CGYWIN__))
-
