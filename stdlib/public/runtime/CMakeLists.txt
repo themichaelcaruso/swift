@@ -101,8 +101,8 @@ foreach(path IN LISTS "include_var")
   list(APPEND swift_runtime_library_compile_flags "-I${path}")
 endforeach()
 
-if(SWIFT_BUILD_STATIC_STDLIB AND "${sdk}" STREQUAL "LINUX")
-  #list(REMOVE_ITEM swift_runtime_sources ImageInspectionELF.cpp)
+if(SWIFT_BUILD_STATIC_STDLIB AND "${sdk}" STREQUAL "VEXOS")
+  list(REMOVE_ITEM swift_runtime_sources ImageInspectionELF.cpp)
   set(static_binary_lnk_file_list)
   string(TOLOWER "${sdk}" lowercase_sdk)
 

@@ -14,11 +14,9 @@
 #define SWIFT_BASIC_LAZY_H
 
 #include <memory>
-#ifdef __APPLE__
-#include <dispatch/dispatch.h>
-#else
+
 #include <mutex>
-#endif
+
 #include "swift/Basic/Malloc.h"
 #include "swift/Basic/type_traits.h"
 
