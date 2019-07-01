@@ -614,4 +614,23 @@ public:
                                   const ProtocolRequirement *assocConformance);
 } // end namespace swift
 
+#if defined(__VEXOS__)
+extern "C"
+// swift_once_f() used to implemented swift_once() in the stdlib
+void swift_once_f(uintptr_t *predicate, void (*function)(void *), void *context)
+{
+        if (!*predicate) {
+                *predicate = 1;
+                function(context);
+        }
+}
+
+
+//swift::swift_once_f(unsigned long*, void (*)(void*), void*)
+void _ZN5swift12swift_once_fEPmPFvPvES1_(uintptr_t *predicate, void (*function)(void *), void *context)
+{
+        swift_once_f(predicate, function, context);
+}
+#endif
+
 #endif /* SWIFT_RUNTIME_PRIVATE_H */

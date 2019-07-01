@@ -39,7 +39,7 @@ namespace swift {
 #elif defined(__VEXOS__)
   extern "C" void swift_once_f(uintptr_t *predicate,
                      void (*function)(void *), void *context);
-  using OnceToken_t = unsigned long;
+  using OnceToken_t = unsigned int;
 #define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) \
   swift_once_f(&TOKEN, FUNC, CONTEXT)
 #else
