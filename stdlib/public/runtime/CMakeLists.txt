@@ -53,7 +53,6 @@ set(swift_runtime_sources
     LLVMSupport.cpp
     Metadata.cpp
     MetadataLookup.cpp
-    MutexPThread.cpp
     MutexVEXThread.cpp
     MutexWin32.cpp
     Numeric.cpp
@@ -78,7 +77,6 @@ endif(LLVM_ENABLE_ASSERTIONS)
 
 # Acknowledge that the following sources are known.
 set(LLVM_OPTIONAL_SOURCES
-    MutexPThread.cpp
     MutexWin32.cpp
     CygwinPort.cpp
     static_stub.c
