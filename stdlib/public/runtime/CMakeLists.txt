@@ -81,6 +81,7 @@ set(LLVM_OPTIONAL_SOURCES
     MutexPThread.cpp
     MutexWin32.cpp
     CygwinPort.cpp
+    static_stub.c
     ImageInspectionELF.cpp
     StaticBinaryELF.cpp
     SwiftRT-COFF.cpp
@@ -88,6 +89,18 @@ set(LLVM_OPTIONAL_SOURCES
     ${swift_runtime_sources}
     ${swift_runtime_objc_sources}
     ${swift_runtime_leaks_sources})
+
+if(SWIFT_BUILD_STATIC_STDLIB)
+  foreach(sdk ${SWIFT_SDKS})
+    if("${sdk}" STREQUAL "VEXOS")
+      add_library(static_stub OBJECT static_stub.c)
+      swift_install_in_component(stdlib
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_stub.dir/static_stub.c${CMAKE_C_OUTPUT_EXTENSION}"
+        RENAME "static_stub.o"
+        DESTINATION "lib/swift_static/linux")
+    endif()
+  endforeach()
+endif()
 
 set(swift_runtime_library_compile_flags ${swift_runtime_compile_flags})
 list(APPEND swift_runtime_library_compile_flags -DswiftCore_EXPORTS)

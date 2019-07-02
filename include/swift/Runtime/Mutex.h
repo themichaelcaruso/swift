@@ -20,15 +20,7 @@
 
 #include <type_traits>
 
-#if (defined(__APPLE__) || defined(__linux__) || defined(__CYGWIN__) || defined(__FreeBSD__) || defined(__HAIKU__))
-#include "swift/Runtime/MutexPThread.h"
-#elif defined(_WIN32)
-#include "swift/Runtime/MutexWin32.h"
-#elif defined(__VEXOS__)
 #include "swift/Runtime/MutexVEXOS.h"
-#else
-#error "Implement equivalent of MutexPThread.h/cpp for your platform."
-#endif
 
 namespace swift {
 
