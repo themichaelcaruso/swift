@@ -193,10 +193,8 @@ std::pair<bool, bool> LangOptions::setTarget(llvm::Triple triple) {
     addPlatformConditionValue(PlatformConditionKind::OS, "PS4");
   else if (Target.isOSHaiku())
     addPlatformConditionValue(PlatformConditionKind::OS, "Haiku");
-  else if (Target.isOSVexOS())
-    addPlatformConditionValue(PlatformConditionKind::OS, "VexOS");
   else
-    UnsupportedOS = true;
+    addPlatformConditionValue(PlatformConditionKind::OS, "VexOS");
 
   bool UnsupportedArch = false;
 
