@@ -42,21 +42,12 @@ modules, eliminating the need for headers and the code duplication they entail.
 
 To learn more about the programming language, visit [swift.org](https://swift.org/documentation/).
 
-## Contributing to Swift
+## Swift + Vex
 
-Contributions to Swift are welcomed and encouraged! Please see the
-[Contributing to Swift guide](https://swift.org/contributing/).
+Vex has a history of convoluted and annoying programming languages. However, with the release of tools such as Vexcode and support for Python and Javascript, this is beginning to change. This project attempts to port high-level language Swift and its standard library to the Vex V5.
 
-To be a truly great community, [Swift.org](https://swift.org/) needs to welcome
-developers from all walks of life, with different backgrounds, and with a wide
-range of experience. A diverse and friendly community will have more great
-ideas, more unique perspectives, and produce more great code. We will work
-diligently to make the Swift community welcoming to everyone.
+Initially, I attempted to keep support for other platforms intact so that this might be folded into the actual Swift repo. This proved to be quite difficult, so I have adopted a "scorched-earth" policy, where all platform-specific code for non-VexOS's is removed when it causes a problem.
 
-To give clarity of what is expected of our members, Swift has adopted the
-code of conduct defined by the Contributor Covenant. This document is used
-across many open source communities, and we think it articulates our values
-well. For more, see the [Code of Conduct](https://swift.org/community/#code-of-conduct).
 
 ## Getting Started
 
