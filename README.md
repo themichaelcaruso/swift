@@ -135,40 +135,9 @@ The `build-script` is a high-level build automation script that supports basic
 options such as building a Swift-compatible LLDB, building the Swift Package
 Manager, building for various platforms, running tests after builds, and more.
 
-There are two primary build systems to use: Xcode and Ninja. The Xcode build
-system allows you to work in Xcode, but Ninja is a bit faster and supports
-more environments.
+To build for VexOS, run:
 
-To build using Ninja, run:
-
-    utils/build-script --release-debuginfo
-
-When developing Swift, it helps to build what you're working on in a debug
-configuration while building the rest of the project with optimizations. Below
-are some examples of using debug variants:
-
-    utils/build-script --release-debuginfo --debug-swift # Swift frontend built in debug
-    utils/build-script --release-debuginfo --debug-swift-stdlib # Standard library built in debug
-    utils/build-script --release-debuginfo --debug-swift --force-optimized-typechecker # Swift frontend sans type checker built in debug
-
-Limiting the amount of debug code in the compiler has a very large impact on
-Swift compile times, and in turn the test execution time. If you want to build
-the entire project in debug, you can run:
-
-    utils/build-script --debug
-
-For documentation of all available arguments, as well as additional usage
-information, see the inline help:
-
-    utils/build-script -h
-
-#### Xcode
-
-To build using Xcode, specify the `--xcode` argument on any of the above commands.
-Xcode can be used to edit the Swift source code, but it is not currently
-fully supported as a build environment for SDKs other than macOS. The generated
-Xcode project does not integrate with the test runner, but the tests can be run
-with the 'check-swift' target.
+    ./utils/build-script -R --vexos --vex-sdk ~/sdk  --skip-build-osx --build-swift-dynamic-sdk-overlay=0 --no-swift-stdlib-assertions --build-swift-static-stdlib  --build-swift-dynamic-stdlib=0
 
 #### Build Products
 
@@ -197,22 +166,6 @@ library, run:
 
 It is always a good idea to do a full build after using `update-checkout`.
 
-#### Using Xcode
-
-To open the Swift project in Xcode, open `${SWIFT_BUILD_DIR}/Swift.xcodeproj`.
-It will auto-create a *lot* of schemes for all of the available targets. A
-common debug flow would involve:
-
- - Select the 'swift' scheme.
- - Pull up the scheme editor (⌘⇧<).
- - Select the 'Arguments' tab and click the '+'.
- - Add the command line options.
- - Close the scheme editor.
- - Build and run.
-
-Another option is to change the scheme to "Wait for executable to be launched",
-then run the build product in Terminal.
-
 ### Swift Toolchains
 
 #### Building
@@ -226,14 +179,14 @@ locally reproduce such builds for development or distribution purposes. E.x.:
   $ ./utils/build-toolchain $BUNDLE_PREFIX
 ```
 
-where ``$BUNDLE_PREFIX`` is a string that will be prepended to the build 
-date to give the bundle identifier of the toolchain's ``Info.plist``. For 
-instance, if ``$BUNDLE_PREFIX`` was ``com.example``, the toolchain 
-produced will have the bundle identifier ``com.example.YYYYMMDD``. It 
-will be created in the directory you run the script with a filename 
+where ``$BUNDLE_PREFIX`` is a string that will be prepended to the build
+date to give the bundle identifier of the toolchain's ``Info.plist``. For
+instance, if ``$BUNDLE_PREFIX`` was ``com.example``, the toolchain
+produced will have the bundle identifier ``com.example.YYYYMMDD``. It
+will be created in the directory you run the script with a filename
 of the form: ``swift-LOCAL-YYYY-MM-DD-a-osx.tar.gz``.
 
-Beyond building the toolchain, ``build-toolchain`` also supports the 
+Beyond building the toolchain, ``build-toolchain`` also supports the
 following (non-exhaustive) set of useful options::
 
 - ``--dry-run``: Perform a dry run build. This is off by default.
@@ -243,42 +196,6 @@ following (non-exhaustive) set of useful options::
 
 More options may be added over time. Please pass ``--help`` to
 ``build-toolchain`` to see the full set of options.
-
-#### Installing into Xcode
-
-On macOS if one wants to install such a toolchain into Xcode:
-
-1. Untar and copy the toolchain to one of `/Library/Developer/Toolchains/` or
-   `~/Library/Developer/Toolchains/`. E.x.:
-
-```
-  $ sudo tar -xzf swift-LOCAL-YYYY-MM-DD-a-osx.tar.gz -C /
-  $ tar -xzf swift-LOCAL-YYYY-MM-DD-a-osx.tar.gz -C ~/
-```
-
-The script also generates an archive containing debug symbols which
-can be installed over the main archive allowing symbolication of any
-compiler crashes.
-
-```
-  $ sudo tar -xzf swift-LOCAL-YYYY-MM-DD-a-osx-symbols.tar.gz -C /
-  $ tar -xzf swift-LOCAL-YYYY-MM-DD-a-osx-symbols.tar.gz -C ~/
-```
-
-2. Specify the local toolchain for Xcode's use via `Xcode->Toolchains`.
-
-### Build Failures
-
-Make sure you are using the [correct release](#macos) of Xcode.
-
-If you have changed Xcode versions but still encounter errors that appear to
-be related to the Xcode version, try passing `--clean` to `build-script`.
-
-When a new version of Xcode is released, you can update your build without
-recompiling the entire project by passing the `--reconfigure` option.
-
-Make sure all repositories are up to date with the `update-checkout` command
-described above.
 
 ## Testing Swift
 
@@ -316,8 +233,8 @@ expressed today.
 ## Build Dependencies
 
 ### CMake
-[CMake](https://cmake.org) is the core infrastructure used to configure builds of 
-Swift and its companion projects; at least version 3.4.3 is required. 
+[CMake](https://cmake.org) is the core infrastructure used to configure builds of
+Swift and its companion projects; at least version 3.4.3 is required.
 
 On macOS, you can download the [CMake Binary Distribution](https://cmake.org/download),
 bundled as an application, copy it to `/Applications`, and add the embedded
