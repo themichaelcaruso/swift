@@ -48,16 +48,6 @@
 #include <cxxabi.h>
 #endif
 
-#if __has_include(<execinfo.h>)
-#include <execinfo.h>
-#endif
-
-#if defined(__APPLE__)
-#include <asl.h>
-#elif defined(__ANDROID__)
-#include <android/log.h>
-#endif
-
 namespace FatalErrorFlags {
 enum: uint32_t {
   ReportBacktrace = 1 << 0
@@ -267,11 +257,6 @@ reportNow(uint32_t flags, const char *message)
 #else
   write(STDERR_FILENO, message, strlen(message));
 #endif
-#if defined(__APPLE__)
-  asl_log(nullptr, nullptr, ASL_LEVEL_ERR, "%s", message);
-#elif defined(__ANDROID__)
-  __android_log_print(ANDROID_LOG_FATAL, "SwiftRuntime", "%s", message);
-#endif
 #if SWIFT_SUPPORTS_BACKTRACE_REPORTING
   if (flags & FatalErrorFlags::ReportBacktrace) {
     fputs("Current stack trace:\n", stderr);
@@ -308,9 +293,6 @@ bool swift::_swift_shouldReportFatalErrorsToDebugger() {
 /// Does not crash by itself.
 void swift::swift_reportError(uint32_t flags,
                               const char *message) {
-#if defined(__APPLE__) && NDEBUG
-  flags &= ~FatalErrorFlags::ReportBacktrace;
-#endif
   reportNow(flags, message);
   reportOnCrash(flags, message);
 }

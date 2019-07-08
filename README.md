@@ -20,7 +20,7 @@ To learn more about the programming language, visit [swift.org](https://swift.or
 
 Vex has a history of convoluted and annoying programming languages. However, with the release of tools such as Vexcode and support for Python and Javascript, this is beginning to change. This project attempts to port high-level language Swift and its standard library to the Vex V5.
 
-Initially, I attempted to keep support for other platforms intact so that this might be folded into the actual Swift repo. This proved to be quite difficult, so I have adopted a "scorched-earth" policy, where all platform-specific code for non-VexOS's is removed when it causes a problem.
+Initially, I attempted to keep support for other platforms intact so that this might be folded into the actual Swift repo. This proved to be quite difficult, so I have adopted a "scorched-earth" policy, where all non-VexOS platform-specific code is removed when it causes a problem.
 
 
 ## Getting Started

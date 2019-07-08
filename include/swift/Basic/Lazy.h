@@ -19,14 +19,13 @@
 
 #include "swift/Basic/Malloc.h"
 #include "swift/Basic/type_traits.h"
+#include "swift/Runtime/Once.h"
 
 namespace swift {
 
 
-  extern "C" void swift_once_f(uintptr_t *predicate,
-                     void (*function)(void *), void *context);
-  using OnceToken_t = unsigned int;
-#define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) swift_once_f(&TOKEN, FUNC, CONTEXT)
+using OnceToken_t = swift_once_t;
+#define SWIFT_ONCE_F(TOKEN, FUNC, CONTEXT) swift::swift_once(&TOKEN, FUNC, CONTEXT)
 
 /// A template for lazily-constructed, zero-initialized, leaked-on-exit
 /// global objects.

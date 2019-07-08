@@ -18,15 +18,6 @@ if(SWIFT_RUNTIME_ENABLE_LEAK_CHECKER)
   set(swift_runtime_leaks_sources Leaks.mm)
 endif()
 
-set(swift_runtime_objc_sources
-    ErrorObject.mm
-    SwiftObject.mm
-    SwiftValue.mm
-    ReflectionMirror.mm
-    ObjCRuntimeGetImageNameFromClass.mm
-    "${SWIFT_SOURCE_DIR}/lib/Demangling/OldRemangler.cpp"
-    "${SWIFT_SOURCE_DIR}/lib/Demangling/Remangler.cpp"
-    )
 
 set(swift_runtime_sources
     AnyHashableSupport.cpp
@@ -46,7 +37,7 @@ set(swift_runtime_sources
     Heap.cpp
     HeapObject.cpp
     ImageInspectionMachO.cpp
-    ImageInspectionELF.cpp
+    ImageInspectionStatic.cpp
     ImageInspectionCOFF.cpp
     KeyPaths.cpp
     KnownMetadata.cpp
@@ -85,20 +76,7 @@ set(LLVM_OPTIONAL_SOURCES
     SwiftRT-COFF.cpp
     SwiftRT-ELF.cpp
     ${swift_runtime_sources}
-    ${swift_runtime_objc_sources}
     ${swift_runtime_leaks_sources})
-
-if(SWIFT_BUILD_STATIC_STDLIB)
-  foreach(sdk ${SWIFT_SDKS})
-    if("${sdk}" STREQUAL "VEXOS")
-      add_library(static_stub OBJECT static_stub.c)
-      swift_install_in_component(stdlib
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_stub.dir/static_stub.c${CMAKE_C_OUTPUT_EXTENSION}"
-        RENAME "static_stub.o"
-        DESTINATION "lib/swift_static/linux")
-    endif()
-  endforeach()
-endif()
 
 set(swift_runtime_library_compile_flags ${swift_runtime_compile_flags})
 list(APPEND swift_runtime_library_compile_flags -DswiftCore_EXPORTS)
@@ -113,13 +91,12 @@ foreach(path IN LISTS "include_var")
 endforeach()
 
 if(SWIFT_BUILD_STATIC_STDLIB AND "${sdk}" STREQUAL "VEXOS")
-  list(REMOVE_ITEM swift_runtime_sources ImageInspectionELF.cpp)
   set(static_binary_lnk_file_list)
   string(TOLOWER "${sdk}" lowercase_sdk)
 
   # These two libraries are only used with the static swiftcore
   add_swift_target_library(swiftImageInspectionShared TARGET_LIBRARY STATIC
-    ImageInspectionELF.cpp
+    ImageInspectionStatic.cpp
     C_COMPILE_FLAGS ${swift_runtime_library_compile_flags}
     LINK_FLAGS ${swift_runtime_linker_flags}
     INSTALL_IN_COMPONENT stdlib)
@@ -183,7 +160,6 @@ endif()
 
 add_swift_target_library(swiftRuntime OBJECT_LIBRARY TARGET_LIBRARY
   ${swift_runtime_sources}
-  ${swift_runtime_objc_sources}
   ${swift_runtime_leaks_sources}
   C_COMPILE_FLAGS ${swift_runtime_library_compile_flags}
   LINK_FLAGS ${swift_runtime_linker_flags}

@@ -10,22 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if defined(__APPLE__)
-#define _REENTRANT
-#include <math.h>
-#endif
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#include <io.h>
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
 
 #include <stdio.h>
 #include <sys/types.h>
-#if defined(__unix__) || defined(__VEXOS__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
-#endif
 
 #include <type_traits>
 

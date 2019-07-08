@@ -114,6 +114,19 @@ public:
   ~Cygwin() = default;
 };
 
+class LLVM_LIBRARY_VISIBILITY VexOS : public ToolChain {
+protected:
+  std::string getDefaultLinker() const override;
+
+  std::string getTargetForLinker() const override;
+
+public:
+  VexOS(const Driver &D, const llvm::Triple &Triple) : ToolChain(D, Triple) {}
+  ~VexOS() = default;
+  std::string sanitizerRuntimeLibName(StringRef Sanitizer,
+                                      bool shared = true) const override;
+};
+
 } // end namespace toolchains
 } // end namespace driver
 } // end namespace swift

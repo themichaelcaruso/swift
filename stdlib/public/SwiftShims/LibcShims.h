@@ -40,7 +40,7 @@ typedef __swift_uint16_t __swift_mode_t;
 typedef __swift_uint32_t __swift_mode_t;
 # endif
 #elif defined(__VEXOS__)
-typedef __swift_uint32_t __swift_mode_t;
+typedef __swift_uint16_t __swift_mode_t;
 #elif defined(__APPLE__)
 typedef __swift_uint16_t __swift_mode_t;
 #elif defined(_WIN32)

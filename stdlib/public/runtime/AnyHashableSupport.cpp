@@ -17,7 +17,6 @@
 #include "swift/Runtime/HeapObject.h"
 #include "swift/Runtime/Casting.h"
 #include "Private.h"
-#include "SwiftValue.h"
 #include "SwiftHashableSupport.h"
 
 using namespace swift;
@@ -142,26 +141,6 @@ void _swift_makeAnyHashableUpcastingToHashableBaseType(
   case MetadataKind::Class:
   case MetadataKind::ObjCClassWrapper:
   case MetadataKind::ForeignClass: {
-#if SWIFT_OBJC_INTEROP
-    id srcObject;
-    memcpy(&srcObject, value, sizeof(id));
-    // Do we have a __SwiftValue?
-    if (__SwiftValue *srcSwiftValue = getAsSwiftValue(srcObject)) {
-      // If so, extract the boxed value and try to cast it.
-      const Metadata *unboxedType;
-      const OpaqueValue *unboxedValue;
-      std::tie(unboxedType, unboxedValue) =
-          getValueFromSwiftValue(srcSwiftValue);
-
-      if (auto unboxedHashableWT =
-              swift_conformsToProtocol(unboxedType, &HashableProtocolDescriptor)) {
-        _swift_makeAnyHashableUpcastingToHashableBaseType(
-            const_cast<OpaqueValue *>(unboxedValue), anyHashableResultPointer,
-            unboxedType, unboxedHashableWT);
-        return;
-      }
-    }
-#endif
 
     _swift_makeAnyHashableUsingDefaultRepresentation(
         value, anyHashableResultPointer,
@@ -176,4 +155,3 @@ void _swift_makeAnyHashableUpcastingToHashableBaseType(
     return;
   }
 }
-
