@@ -71,7 +71,7 @@ set(LLVM_OPTIONAL_SOURCES
     MutexWin32.cpp
     CygwinPort.cpp
     static_stub.c
-    ImageInspectionELF.cpp
+    ImageInspectionStatic.cpp
     StaticBinaryELF.cpp
     SwiftRT-COFF.cpp
     SwiftRT-ELF.cpp
