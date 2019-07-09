@@ -63,22 +63,7 @@ extern "C" int pthread_key_init_np(int key, void (*destructor)(void *));
 // wrap the platform's APIs.
 #ifndef SWIFT_THREAD_GETSPECIFIC
 
-// Pick the right typedef for the key.
-# if defined(__linux__)
-#  if defined(__ANDROID__)
-typedef int __swift_thread_key_t;
-#  else
 typedef unsigned int __swift_thread_key_t;
-#  endif
-# elif defined(__FreeBSD__)
-typedef int __swift_thread_key_t;
-# elif defined(_WIN32)
-typedef unsigned long __swift_thread_key_t;
-# elif defined(__HAIKU__)
-typedef int __swift_thread_key_t;
-# else
-typedef unsigned long __swift_thread_key_t;
-# endif
 
 # if defined(_WIN32) && !defined(__CYGWIN__)
 // Windows has its own flavor of API.

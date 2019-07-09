@@ -309,4 +309,3 @@ double swift::__swift_stdlib_u_getNumericValue(__swift_stdlib_UChar32 c) {
 #if defined(__MACH__)
 asm(".linker_option \"-licucore\"\n");
 #endif // defined(__MACH__)
-

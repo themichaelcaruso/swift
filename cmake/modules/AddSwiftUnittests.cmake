@@ -54,8 +54,8 @@ function(add_swift_unittest test_dirname)
       LINK_FLAGS " -fuse-ld=lld")
   elseif(SWIFT_ENABLE_GOLD_LINKER AND
      "${SWIFT_SDK_${SWIFT_HOST_VARIANT_SDK}_OBJECT_FORMAT}" STREQUAL "ELF")
-    set_property(TARGET "${test_dirname}" APPEND_STRING PROPERTY
-      LINK_FLAGS " -fuse-ld=gold")
+    #set_property(TARGET "${test_dirname}" APPEND_STRING PROPERTY
+      #LINK_FLAGS " -fuse-ld=gold")
   endif()
 
   if(SWIFT_ANALYZE_CODE_COVERAGE)
@@ -72,5 +72,3 @@ function(add_swift_unittest test_dirname)
     endif()
   endif()
 endfunction()
-
-

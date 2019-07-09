@@ -21,21 +21,6 @@
 
 using namespace swift;
 
-#ifdef __APPLE__
-
-// On macOS and iOS, swift_once is implemented using GCD.
-// The compiler emits an inline check matching the barrier-free inline fast
-// path of dispatch_once(). See SwiftTargetInfo.OnceDonePredicateValue.
-
-#include <dispatch/dispatch.h>
-static_assert(std::is_same<swift_once_t, dispatch_once_t>::value,
-              "swift_once_t and dispatch_once_t must stay in sync");
-#else
-
-// On non-Darwin platforms we do not assume any barrier-free inline path
-// and SwiftTargetInfo.OnceDonePredicateValue is unset in the compiler.
-
-#endif
 
 // The compiler generates the swift_once_t values as word-sized zero-initialized
 // variables, so we want to make sure swift_once_t isn't larger than the

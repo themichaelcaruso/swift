@@ -18,7 +18,7 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if false
 
 #include "ImageInspection.h"
 #include <mach-o/dyld.h>
@@ -59,17 +59,17 @@ void addImageCallback(const mach_header *mh, intptr_t vmaddr_slide) {
 #if __POINTER_WIDTH__ == 64
   assert(mh->magic == MH_MAGIC_64 && "loaded non-64-bit image?!");
 #endif
-  
+
   // Look for a __swift5_proto section.
   unsigned long size;
   const uint8_t *section =
   getsectiondata(reinterpret_cast<const mach_header_platform *>(mh),
                  SEGMENT_NAME, SECTION_NAME,
                  &size);
-  
+
   if (!section)
     return;
-  
+
   CONSUME_BLOCK(section, size);
 }
 

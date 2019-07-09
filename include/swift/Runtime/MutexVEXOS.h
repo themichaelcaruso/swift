@@ -27,13 +27,15 @@
 
 namespace swift {
 
+
+#if defined(__VEXOS__)
+
 typedef __uint32_t pthread_rwlock_t;         /* POSIX RWLock Object */
 
 typedef pthread_cond_t ConditionHandle;
 typedef pthread_mutex_t MutexHandle;
-typedef pthread_rwlock_t ReadWriteLockHandle;
 
-#if defined(__VEXOS__)
+
 // At the moment CYGWIN pthreads implementation doesn't support the use of
 // constexpr for static allocation versions. The way they define things
 // results in a reinterpret_cast which violates constexpr. Similarly, Android's

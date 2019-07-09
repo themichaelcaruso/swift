@@ -36,13 +36,6 @@
 #include <thread>
 #include "../SwiftShims/GlobalObjects.h"
 #include "../SwiftShims/RuntimeShims.h"
-#if SWIFT_OBJC_INTEROP
-# include <objc/NSObject.h>
-# include <objc/runtime.h>
-# include <objc/message.h>
-# include <objc/objc.h>
-# include "swift/Runtime/ObjCBridge.h"
-#endif
 #include "Leaks.h"
 
 using namespace swift;
@@ -50,8 +43,8 @@ using namespace swift;
 // Check to make sure the runtime is being built with a compiler that
 // supports the Swift calling convention.
 //
-// If the Swift calling convention is not in use, functions such as 
-// swift_allocBox and swift_makeBoxUnique that rely on their return value 
+// If the Swift calling convention is not in use, functions such as
+// swift_allocBox and swift_makeBoxUnique that rely on their return value
 // being passed in a register to be compatible with Swift may miscompile on
 // some platforms and silently fail.
 #if !__has_attribute(swiftcall)
@@ -145,11 +138,11 @@ swift::swift_verifyEndOfLifetime(HeapObject *object) {
   if (object->refCounts.getCount() != 0)
     swift::fatalError(/* flags = */ 0,
                       "Fatal error: Stack object escaped\n");
-  
+
   if (object->refCounts.getUnownedCount() != 1)
     swift::fatalError(/* flags = */ 0,
                       "Fatal error: Unowned reference to stack object\n");
-  
+
   if (object->refCounts.getWeakCount() != 0)
     swift::fatalError(/* flags = */ 0,
                       "Fatal error: Weak reference to stack object\n");
@@ -289,7 +282,7 @@ HeapObject *swift::swift_allocEmptyBox() {
 }
 
 // Forward-declare this, but define it after swift_release.
-extern "C" LLVM_LIBRARY_VISIBILITY LLVM_ATTRIBUTE_NOINLINE LLVM_ATTRIBUTE_USED 
+extern "C" LLVM_LIBRARY_VISIBILITY LLVM_ATTRIBUTE_NOINLINE LLVM_ATTRIBUTE_USED
 void _swift_release_dealloc(HeapObject *object);
 
 HeapObject *swift::swift_retain(HeapObject *object) {
@@ -399,10 +392,10 @@ void swift::swift_unownedRelease(HeapObject *object) {
   // Only class objects can be unowned-retained and unowned-released.
   assert(object->metadata->isClassObject());
   assert(static_cast<const ClassMetadata*>(object->metadata)->isTypeMetadata());
-  
+
   if (object->refCounts.decrementUnownedShouldFree(1)) {
     auto classMetadata = static_cast<const ClassMetadata*>(object->metadata);
-    
+
     swift_slowDealloc(object, classMetadata->getInstanceSize(),
                       classMetadata->getInstanceAlignMask());
   }
@@ -451,7 +444,7 @@ void swift::swift_unownedRelease_n(HeapObject *object, int n) {
   // Only class objects can be unowned-retained and unowned-released.
   assert(object->metadata->isClassObject());
   assert(static_cast<const ClassMetadata*>(object->metadata)->isTypeMetadata());
-  
+
   if (object->refCounts.decrementUnownedShouldFree(n)) {
     auto classMetadata = static_cast<const ClassMetadata*>(object->metadata);
     swift_slowDealloc(object, classMetadata->getInstanceSize(),
@@ -579,26 +572,10 @@ void _swift_release_dealloc(HeapObject *object) {
   asFullMetadata(object->metadata)->destroy(object);
 }
 
-#if SWIFT_OBJC_INTEROP
-/// Perform the root -dealloc operation for a class instance.
-void swift::swift_rootObjCDealloc(HeapObject *self) {
-  auto metadata = self->metadata;
-  assert(metadata->isClassObject());
-  auto classMetadata = static_cast<const ClassMetadata*>(metadata);
-  assert(classMetadata->isTypeMetadata());
-  swift_deallocClassInstance(self, classMetadata->getInstanceSize(),
-                             classMetadata->getInstanceAlignMask());
-}
-#endif
 
 void swift::swift_deallocClassInstance(HeapObject *object,
                                        size_t allocatedSize,
                                        size_t allocatedAlignMask) {
-#if SWIFT_OBJC_INTEROP
-  // We need to let the ObjC runtime clean up any associated objects or weak
-  // references associated with this object.
-  objc_destructInstance((id)object);
-#endif
   swift_deallocObject(object, allocatedSize, allocatedAlignMask);
 }
 
@@ -614,19 +591,6 @@ void swift::swift_deallocPartialClassInstance(HeapObject *object,
   auto *classMetadata = _swift_getClassOfAllocated(object)->getClassObject();
   assert(classMetadata && "Not a class?");
   while (classMetadata != metadata) {
-#if SWIFT_OBJC_INTEROP
-    // If we have hit a pure Objective-C class, we won't see another ivar
-    // destroyer.
-    if (classMetadata->isPureObjC()) {
-      // Set the class to the pure Objective-C superclass, so that when dealloc
-      // runs, it starts at that superclass.
-      object_setClass((id)object, class_const_cast(classMetadata));
-
-      // Release the object.
-      objc_release((id)object);
-      return;
-    }
-#endif
 
     if (classMetadata->IVarDestroyer)
       classMetadata->IVarDestroyer(object);
@@ -635,24 +599,6 @@ void swift::swift_deallocPartialClassInstance(HeapObject *object,
     assert(classMetadata && "Given metatype not a superclass of object type?");
   }
 
-#if SWIFT_OBJC_INTEROP
-  // If this class doesn't use Swift-native reference counting, use
-  // objc_release instead.
-  if (!usesNativeSwiftReferenceCounting(classMetadata)) {
-    // Find the pure Objective-C superclass.
-    while (!classMetadata->isPureObjC())
-      classMetadata = classMetadata->Superclass->getClassObject();
-
-    // Set the class to the pure Objective-C superclass, so that when dealloc
-    // runs, it starts at that superclass.
-    object_setClass((id)object, class_const_cast(classMetadata));
-
-    // Release the object.
-    objc_release((id)object);
-    return;
-  }
-#endif
-
   // The strong reference count should be +1 -- tear down the object
   bool shouldDeallocate = object->refCounts.decrementShouldDeinit(1);
   assert(shouldDeallocate);
@@ -660,17 +606,6 @@ void swift::swift_deallocPartialClassInstance(HeapObject *object,
   swift_deallocClassInstance(object, allocatedSize, allocatedAlignMask);
 }
 
-#if !defined(__APPLE__) && defined(SWIFT_RUNTIME_CLOBBER_FREED_OBJECTS)
-static inline void memset_pattern8(void *b, const void *pattern8, size_t len) {
-  char *ptr = static_cast<char *>(b);
-  while (len >= 8) {
-    memcpy(ptr, pattern8, 8);
-    ptr += 8;
-    len -= 8;
-  }
-  memcpy(ptr, pattern8, len);
-}
-#endif
 
 static inline void swift_deallocObjectImpl(HeapObject *object,
                                            size_t allocatedSize,
@@ -683,11 +618,6 @@ static inline void swift_deallocObjectImpl(HeapObject *object,
   }
   assert(object->refCounts.isDeiniting());
   SWIFT_RT_TRACK_INVOCATION(object, swift_deallocObject);
-#ifdef SWIFT_RUNTIME_CLOBBER_FREED_OBJECTS
-  memset_pattern8((uint8_t *)object + sizeof(HeapObject),
-                  "\xAB\xAD\x1D\xEA\xF4\xEE\xD0\bB9",
-                  allocatedSize - sizeof(HeapObject));
-#endif
 
   // If we are tracking leaks, stop tracking this object.
   SWIFT_LEAKS_STOP_TRACKING_OBJECT(object);

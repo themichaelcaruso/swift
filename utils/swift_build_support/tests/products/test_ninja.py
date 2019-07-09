@@ -95,17 +95,7 @@ class NinjaTestCase(unittest.TestCase):
         ninja_build.build()
 
         expect_env = ""
-        if platform.system() == "Darwin":
-            expect_env = (
-                "env "
-                "'CFLAGS=-isysroot {sysroot} -mmacosx-version-min=10.9' "
-                "CXX={cxx} "
-                "LDFLAGS=-mmacosx-version-min=10.9 "
-            ).format(
-                cxx=self.toolchain.cxx,
-                sysroot=xcrun.sdk_path('macosx')
-            )
-        elif self.toolchain.cxx:
+        if self.toolchain.cxx:
             expect_env = (
                 "env "
                 "CXX={cxx} "
