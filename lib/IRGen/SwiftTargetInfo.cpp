@@ -69,13 +69,8 @@ static void configureX86_64(IRGenModule &IGM, const llvm::Triple &triple,
             SWIFT_ABI_X86_64_SWIFT_SPARE_BITS_MASK);
   setToMask(target.IsObjCPointerBit, 64, SWIFT_ABI_X86_64_IS_OBJC_BIT);
 
-  if (tripleIsAnySimulator(triple)) {
-    setToMask(target.ObjCPointerReservedBits, 64,
-              SWIFT_ABI_X86_64_SIMULATOR_OBJC_RESERVED_BITS_MASK);
-  } else {
     setToMask(target.ObjCPointerReservedBits, 64,
               SWIFT_ABI_X86_64_OBJC_RESERVED_BITS_MASK);
-  }
 
   if (triple.isOSDarwin()) {
     target.LeastValidPointerValue =
@@ -88,7 +83,7 @@ static void configureX86_64(IRGenModule &IGM, const llvm::Triple &triple,
 
   // x86-64 requires ISA-masking.
   target.ObjCUseISAMask = true;
-  
+
   // x86-64 only has 48 effective bits of address space and reserves the high
   // half for the kernel.
   target.SwiftRetainIgnoresNegativeValues = true;
@@ -158,14 +153,14 @@ SwiftTargetInfo SwiftTargetInfo::get(IRGenModule &IGM) {
 
   // Prepare generic target information.
   SwiftTargetInfo target(triple.getObjectFormat(), pointerSize);
-  
+
   // On Apple platforms, we implement "once" using dispatch_once,
   // which exposes a barrier-free inline path with -1 as the "done" value.
   if (triple.isOSDarwin())
     target.OnceDonePredicateValue = -1L;
   // Other platforms use std::call_once() and we don't
   // assume that they have a barrier-free inline fast path.
-  
+
   switch (triple.getArch()) {
   case llvm::Triple::x86_64:
     configureX86_64(IGM, triple, target);
