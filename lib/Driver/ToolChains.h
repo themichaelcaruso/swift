@@ -118,7 +118,7 @@ class LLVM_LIBRARY_VISIBILITY VexOS : public ToolChain {
 protected:
   InvocationInfo constructInvocation(const LinkJobAction &job,
                                      const JobContext &context) const override;
-
+                                     
 public:
   VexOS(const Driver &D, const llvm::Triple &Triple) : ToolChain(D, Triple) {}
   ~VexOS() = default;
