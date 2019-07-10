@@ -23,7 +23,6 @@ class ToolchainTestCase(unittest.TestCase):
         host_target = 'macosx-x86_64'
         args = self.default_args()
         args.build_osx = True
-        args.build_ios_device = True
         args.host_target = host_target
         args.stdlib_deployment_targets = [host_target, 'iphoneos-arm64']
         args.build_stdlib_deployment_targets = 'all'
@@ -36,8 +35,6 @@ class ToolchainTestCase(unittest.TestCase):
 
         self.assertEqual(len(hsc.swift_stdlib_build_targets), 2)
         self.assertIn('swift-test-stdlib-macosx-x86_64',
-                      hsc.swift_stdlib_build_targets)
-        self.assertIn('swift-test-stdlib-iphoneos-arm64',
                       hsc.swift_stdlib_build_targets)
 
     def test_should_only_deployment_if_specified(self):

@@ -37,7 +37,7 @@ namespace {
 struct InferredAvailability {
   PlatformAgnosticAvailabilityKind PlatformAgnostic
     = PlatformAgnosticAvailabilityKind::None;
-  
+
   Optional<llvm::VersionTuple> Introduced;
   Optional<llvm::VersionTuple> Deprecated;
   Optional<llvm::VersionTuple> Obsoleted;
@@ -219,14 +219,12 @@ AvailabilityContext AvailabilityInference::inferForType(Type t) {
 
 AvailabilityContext ASTContext::getOpaqueTypeAvailability() {
   auto target = LangOpts.Target;
-  
-  if (target.isMacOSX()
-      || target.isiOS()
-      || target.isWatchOS()) {
+
+  if (target.isMacOSX()) {
     // TODO: Update with OS versions that ship with runtime support
     return AvailabilityContext(
                             VersionRange::allGTE(llvm::VersionTuple(9999,0,0)));
   }
-  
+
   return AvailabilityContext::alwaysAvailable();
 }

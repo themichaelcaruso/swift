@@ -65,10 +65,7 @@ def get_api_digester_path(tool_path):
 class DumpConfig:
     def __init__(self, tool_path, platform):
         target_map = {
-            'iphoneos': 'arm64-apple-ios10.0',
             'macosx': 'x86_64-apple-macosx10.11',
-            'appletvos': 'arm64-apple-tvos10.0',
-            'watchos': 'armv7k-apple-watchos3.0',
         }
         self.tool_path = get_api_digester_path(tool_path)
         self.platform = platform

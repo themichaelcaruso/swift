@@ -473,7 +473,7 @@ makeEnumRawValueConstructor(ClangImporter::Implementation &Impl,
   ASTContext &C = Impl.SwiftContext;
   auto rawTy = enumDecl->getRawType();
   auto enumTy = enumDecl->getDeclaredInterfaceType();
-  
+
   auto param = new (C) ParamDecl(VarDecl::Specifier::Default, SourceLoc(),
                                  SourceLoc(), C.Id_rawValue,
                                  SourceLoc(), C.Id_rawValue,
@@ -535,7 +535,7 @@ makeEnumRawValueConstructor(ClangImporter::Implementation &Impl,
 
   auto body = BraceStmt::create(C, SourceLoc(), {assign, ret}, SourceLoc(),
                                 /*implicit*/ true);
-  
+
   ctorDecl->setBody(body);
   ctorDecl->setBodyTypeCheckedIfPresent();
 
@@ -611,7 +611,7 @@ static AccessorDecl *makeEnumRawValueGetter(ClangImporter::Implementation &Impl,
   auto ret = new (C) ReturnStmt(SourceLoc(), reinterpreted);
   auto body = BraceStmt::create(C, SourceLoc(), ASTNode(ret), SourceLoc(),
                                 /*implicit*/ true);
-  
+
   getterDecl->setBody(body);
   getterDecl->setBodyTypeCheckedIfPresent();
 
@@ -634,7 +634,7 @@ static AccessorDecl *makeStructRawValueGetter(
   assert(storedVar->hasStorage());
 
   ASTContext &C = Impl.SwiftContext;
-  
+
   auto *params = ParameterList::createEmpty(C);
 
   auto computedType = computedVar->getInterfaceType();
@@ -688,7 +688,7 @@ static AccessorDecl *makeStructRawValueGetter(
   auto ret = new (C) ReturnStmt(SourceLoc(), result);
   auto body = BraceStmt::create(C, SourceLoc(), ASTNode(ret), SourceLoc(),
                                 /*implicit*/ true);
-  
+
   getterDecl->setBody(body);
   getterDecl->setBodyTypeCheckedIfPresent();
 
@@ -702,7 +702,7 @@ static AccessorDecl *makeFieldGetterDecl(ClangImporter::Implementation &Impl,
   auto &C = Impl.SwiftContext;
 
   auto *params = ParameterList::createEmpty(C);
-  
+
   auto getterType = importedFieldDecl->getInterfaceType();
   auto getterDecl = AccessorDecl::create(C,
                      /*FuncLoc=*/importedFieldDecl->getLoc(),
@@ -947,7 +947,7 @@ makeUnionFieldAccessors(ClangImporter::Implementation &Impl,
       FunctionType::get(
         AnyFunctionType::Param(selfDecl->getInterfaceType()),
         importedFieldDecl->getInterfaceType()));
-  
+
     auto reinterpreted = CallExpr::createImplicit(C, reinterpretCastRefExpr,
                                                   { selfRef },
                                                   { Identifier() });
@@ -1099,7 +1099,7 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                          cSetterParamTypes,
                                          clang::FunctionProtoType::ExtProtoInfo());
   auto cSetterTypeInfo = Ctx.getTrivialTypeSourceInfo(cSetterType);
-  
+
   auto cSetterDecl = clang::FunctionDecl::Create(Ctx,
                                                  structDecl->getDeclContext(),
                                                  clang::SourceLocation(),
@@ -1121,7 +1121,7 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
   // Don't bother synthesizing the body if we've already finished type-checking.
   if (Impl.hasFinishedTypeChecking())
     return { getterDecl, setterDecl };
-  
+
   // Synthesize the getter body
   {
     auto cGetterSelfId = nullptr;
@@ -1135,7 +1135,7 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                                   clang::SC_None,
                                                   nullptr);
     cGetterDecl->setParams(cGetterSelf);
-    
+
     auto cGetterSelfExpr = new (Ctx) clang::DeclRefExpr(Ctx, cGetterSelf, false,
                                                         recordType,
                                                         clang::VK_RValue,
@@ -1148,7 +1148,7 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                                    fieldType,
                                                    clang::VK_RValue,
                                                    clang::OK_BitField);
-    
+
     auto cGetterBody = clang::ReturnStmt::Create(Ctx, clang::SourceLocation(),
                                                    cGetterExpr,
                                                    nullptr);
@@ -1179,12 +1179,12 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                                   nullptr);
     cSetterParams.push_back(cSetterSelf);
     cSetterDecl->setParams(cSetterParams);
-    
+
     auto cSetterSelfExpr = new (Ctx) clang::DeclRefExpr(Ctx, cSetterSelf, false,
                                                         recordPointerType,
                                                         clang::VK_RValue,
                                                         clang::SourceLocation());
-    
+
     auto cSetterMemberExpr = new (Ctx) clang::MemberExpr(cSetterSelfExpr,
                                                          /*isarrow=*/ true,
                                                          clang::SourceLocation(),
@@ -1193,12 +1193,12 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                                          fieldType,
                                                          clang::VK_LValue,
                                                          clang::OK_BitField);
-    
+
     auto cSetterValueExpr = new (Ctx) clang::DeclRefExpr(Ctx, cSetterValue, false,
                                                          fieldType,
                                                          clang::VK_RValue,
                                                          clang::SourceLocation());
-    
+
     auto cSetterExpr = new (Ctx) clang::BinaryOperator(cSetterMemberExpr,
                                                        cSetterValueExpr,
                                                        clang::BO_Assign,
@@ -1207,7 +1207,7 @@ makeBitFieldAccessors(ClangImporter::Implementation &Impl,
                                                        clang::OK_Ordinary,
                                                        clang::SourceLocation(),
                                                        clang::FPOptions());
-    
+
     cSetterDecl->setBody(cSetterExpr);
   }
 
@@ -2262,7 +2262,7 @@ namespace {
           }
         }
       }
-      
+
       return ImportedName();
     }
 
@@ -2631,7 +2631,7 @@ namespace {
           Impl.importDeclContextOf(decl, importedName.getEffectiveContext());
       if (!dc)
         return nullptr;
-      
+
       auto name = importedName.getDeclName().getBaseIdentifier();
 
       // Create the enum declaration and record it.
@@ -2699,7 +2699,7 @@ namespace {
         ProtocolDecl *bridgedNSError = nullptr;
         ClassDecl *nsErrorDecl = nullptr;
         ProtocolDecl *errorCodeProto = nullptr;
-        if (enumInfo.isErrorEnum() && 
+        if (enumInfo.isErrorEnum() &&
             (bridgedNSError =
                C.getProtocol(KnownProtocolKind::BridgedStoredNSError)) &&
             (nsErrorDecl = C.getNSErrorDecl()) &&
@@ -2884,7 +2884,7 @@ namespace {
       Impl.ImportedDecls[{canonicalClangDecl, getVersion()}] = result;
 
       // Import each of the enumerators.
-      
+
       bool addEnumeratorsAsMembers;
       switch (enumKind) {
       case EnumKind::Constants:
@@ -3044,7 +3044,7 @@ namespace {
           addDecl(result, enumeratorDecl);
           for (auto *variant : variantDecls)
             addDecl(result, variant);
-          
+
           // If there is an error wrapper, add an alias within the
           // wrapper to the corresponding value within the enumerator
           // context.
@@ -3069,7 +3069,7 @@ namespace {
       // Track whether this record contains fields we can't reference in Swift
       // as stored properties.
       bool hasUnreferenceableStorage = false;
-      
+
       // Track whether this record contains fields that can't be zero-
       // initialized.
       bool hasZeroInitializableStorage = true;
@@ -3296,7 +3296,7 @@ namespace {
       for (auto member : members) {
         result->addMember(member);
       }
-      
+
       for (auto ctor : ctors) {
         result->addMember(ctor);
       }
@@ -3422,7 +3422,7 @@ namespace {
         return nullptr;
       }
       }
-      
+
       llvm_unreachable("Invalid EnumKind.");
     }
 
@@ -7395,17 +7395,7 @@ void ClangImporter::Implementation::importAttributes(
 
       auto platformK =
         llvm::StringSwitch<Optional<PlatformKind>>(Platform)
-          .Case("ios", PlatformKind::iOS)
           .Case("macos", PlatformKind::OSX)
-          .Case("tvos", PlatformKind::tvOS)
-          .Case("watchos", PlatformKind::watchOS)
-          .Case("ios_app_extension", PlatformKind::iOSApplicationExtension)
-          .Case("macos_app_extension",
-                PlatformKind::OSXApplicationExtension)
-          .Case("tvos_app_extension",
-                PlatformKind::tvOSApplicationExtension)
-          .Case("watchos_app_extension",
-                PlatformKind::watchOSApplicationExtension)
           .Default(None);
       if (!platformK)
         continue;
@@ -7907,7 +7897,7 @@ ClangImporter::Implementation::importMirroredDecl(const clang::NamedDecl *decl,
 
     auto updateMirroredDecl = [&](Decl *result) {
       result->setImplicit();
-    
+
       // Map the Clang attributes onto Swift attributes.
       importAttributes(decl, result);
 
@@ -8320,7 +8310,7 @@ ClangImporter::Implementation::createConstant(Identifier name, DeclContext *dc,
 
   // Mark the function transparent so that we inline it away completely.
   func->getAttrs().add(new (C) TransparentAttr(/*implicit*/ true));
-  
+
   // Set the function up as the getter.
   makeComputed(var, func, nullptr);
 

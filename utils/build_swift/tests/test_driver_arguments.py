@@ -515,21 +515,6 @@ class TestDriverArgumentParser(unittest.TestCase):
             self.parse_default_args([option_string, '1'])
             self.parse_default_args([option_string, '0.0.0.1'])
 
-    def test_option_I(self):
-        with self.assertRaises(ValueError):
-            self.parse_default_args(['-I'])
-
-    def test_option_ios_all(self):
-        with self.assertRaises(ValueError):
-            self.parse_default_args(['--ios-all'])
-
-    def test_option_tvos_all(self):
-        with self.assertRaises(ValueError):
-            self.parse_default_args(['--tvos-all'])
-
-    def test_option_watchos_all(self):
-        with self.assertRaises(ValueError):
-            self.parse_default_args(['--watchos-all'])
 
     # -------------------------------------------------------------------------
     # Implied defaults tests
@@ -581,10 +566,7 @@ class TestDriverArgumentParser(unittest.TestCase):
             self.assertFalse(namespace.build_freebsd)
             self.assertFalse(namespace.build_cygwin)
             self.assertFalse(namespace.build_osx)
-            self.assertFalse(namespace.build_ios)
-            self.assertFalse(namespace.build_tvos)
-            self.assertFalse(namespace.build_watchos)
-
+            self.assertFalse(namespace.build_vexos)
             self.assertFalse(namespace.build_foundation)
             self.assertFalse(namespace.build_libdispatch)
             self.assertFalse(namespace.build_libicu)
@@ -595,92 +577,6 @@ class TestDriverArgumentParser(unittest.TestCase):
             self.assertFalse(namespace.build_swiftpm)
             self.assertFalse(namespace.build_xctest)
 
-    def test_implied_defaults_skip_build_ios(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-build-ios'])
-            self.assertFalse(namespace.build_ios_device)
-            self.assertFalse(namespace.build_ios_simulator)
-
-            # Also implies that the tests should be skipped
-            self.assertFalse(namespace.test_ios_host)
-            self.assertFalse(namespace.test_ios_simulator)
-
-    def test_implied_defaults_skip_build_tvos(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-build-tvos'])
-            self.assertFalse(namespace.build_tvos_device)
-            self.assertFalse(namespace.build_tvos_simulator)
-
-            # Also implies that the tests should be skipped
-            self.assertFalse(namespace.test_tvos_host)
-            self.assertFalse(namespace.test_tvos_simulator)
-
-    def test_implied_defaults_skip_build_watchos(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-build-watchos'])
-            self.assertFalse(namespace.build_watchos_device)
-            self.assertFalse(namespace.build_watchos_simulator)
-
-            # Also implies that the tests should be skipped
-            self.assertFalse(namespace.test_watchos_host)
-            self.assertFalse(namespace.test_watchos_simulator)
-
-    def test_implied_defaults_validation_test(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--validation-test'])
-            self.assertTrue(namespace.test)
-
-    def test_implied_defaults_test_optimized(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--test-optimized'])
-            self.assertTrue(namespace.test)
-
-    def test_implied_defaults_test_optimize_for_size(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--test-optimize-for-size'])
-            self.assertTrue(namespace.test)
-
-    def test_implied_defaults_test_optimize_none_with_implicit_dynamic(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(
-                ['--test-optimize-none-with-implicit-dynamic'])
-            self.assertTrue(namespace.test)
-
-    def test_implied_defaults_skip_all_tests(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args([
-                '--test', '0',
-                '--validation-test', '0',
-                '--long-test', '0',
-                '--stress-test', '0',
-            ])
-
-            self.assertFalse(namespace.test_linux)
-            self.assertFalse(namespace.test_freebsd)
-            self.assertFalse(namespace.test_cygwin)
-            self.assertFalse(namespace.test_osx)
-            self.assertFalse(namespace.test_ios)
-            self.assertFalse(namespace.test_tvos)
-            self.assertFalse(namespace.test_watchos)
-
-    def test_implied_defaults_skip_test_ios(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-test-ios'])
-            self.assertFalse(namespace.test_ios_host)
-            self.assertFalse(namespace.test_ios_simulator)
-
-    def test_implied_defaults_skip_test_tvos(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-test-tvos'])
-            self.assertFalse(namespace.test_tvos_host)
-            self.assertFalse(namespace.test_tvos_simulator)
-
-    def test_implied_defaults_skip_test_watchos(self):
-        with self.assertNotRaises(ParserError):
-            namespace = self.parse_default_args(['--skip-test-watchos'])
-            self.assertFalse(namespace.test_watchos_host)
-            self.assertFalse(namespace.test_watchos_simulator)
-
     def test_implied_defaults_skip_build_android(self):
         with self.assertNotRaises(ParserError):
             namespace = self.parse_default_args(['--android', '0'])
@@ -689,13 +585,19 @@ class TestDriverArgumentParser(unittest.TestCase):
         with self.assertNotRaises(ParserError):
             namespace = self.parse_default_args(['--skip-build-android'])
             self.assertFalse(namespace.test_android_host)
+            
+    def test_implied_defaults_skip_build_vexos(self):
+        with self.assertNotRaises(ParserError):
+            namespace = self.parse_default_args(['--vexos', '0'])
+            self.assertFalse(namespace.test_android_host)
 
+        with self.assertNotRaises(ParserError):
+            namespace = self.parse_default_args(['--skip-build-vexos'])
+            self.assertFalse(namespace.test_android_host)
     def test_implied_defaults_host_test(self):
         with self.assertNotRaises(ParserError):
             namespace = self.parse_default_args(['--host-test', '0'])
-            self.assertFalse(namespace.test_ios_host)
-            self.assertFalse(namespace.test_tvos_host)
-            self.assertFalse(namespace.test_watchos_host)
+            self.assertFalse(namespace.test_vexos_host)
             self.assertFalse(namespace.test_android_host)
             self.assertFalse(namespace.build_libparser_only)
 

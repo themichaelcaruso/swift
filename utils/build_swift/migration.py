@@ -24,13 +24,7 @@ __all__ = [
 
 
 _SDK_TARGETS = {
-    'OSX': StdlibDeploymentTarget.OSX.targets,
-    'IOS': StdlibDeploymentTarget.iOS.targets,
-    'IOS_SIMULATOR': StdlibDeploymentTarget.iOSSimulator.targets,
-    'TVOS': StdlibDeploymentTarget.AppleTV.targets,
-    'TVOS_SIMULATOR': StdlibDeploymentTarget.AppleTVSimulator.targets,
-    'WATCHOS': StdlibDeploymentTarget.AppleWatch.targets,
-    'WATCHOS_SIMULATOR': StdlibDeploymentTarget.AppleWatchSimulator.targets,
+    'OSX': StdlibDeploymentTarget.OSX.targets
 }
 
 

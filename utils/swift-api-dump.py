@@ -14,11 +14,11 @@
 # all of the frameworks in the named SDK(s) and dump their APIs.
 #
 # One can supply multiple SDKs, written as a list. For example, to
-# dump the API for all frameworks across macOS, iOS, watchOS, and tvOS,
+# dump the API for all frameworks across macOS
 # in Swift 4.2, use:
 #
 #  /path/to/bin/dir/swift-api-dump.py -swift-version 4.2 -o output-dir \
-#      -s macosx iphoneos watchos appletvos
+#      -s macosx 
 #
 
 from __future__ import print_function
@@ -31,13 +31,7 @@ import subprocess
 import sys
 
 DEFAULT_TARGET_BASED_ON_SDK = {
-    'macosx': 'x86_64-apple-macosx10.11',
-    'iphoneos': 'arm64-apple-ios9.0',
-    'iphonesimulator': 'x86_64-apple-ios9.0',
-    'watchos': 'armv7k-apple-watchos2.0',
-    'watchos.simulator': 'i386-apple-watchos2.0',
-    'appletvos': 'arm64-apple-tvos9',
-    'appletvos.simulator': 'x86_64-apple-tvos9',
+    'macosx': 'x86_64-apple-macosx10.11'
 }
 
 SKIPPED_FRAMEWORKS = {
@@ -201,12 +195,6 @@ def dump_module_api((cmd, extra_dump_args, output_dir, module, quiet,
 def pretty_sdk_name(sdk):
     if sdk.find("macosx") == 0:
         return 'macOS'
-    if sdk.find("iphoneos") == 0:
-        return 'iOS'
-    if sdk.find("watchos") == 0:
-        return 'watchOS'
-    if sdk.find("appletvos") == 0:
-        return 'tvOS'
     return 'unknownOS'
 
 # Collect the set of frameworks we should dump

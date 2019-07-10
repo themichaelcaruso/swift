@@ -2,8 +2,8 @@
 
 function usage {
   echo "usage: $0 OVERLAY SDK TARGET"
-  echo "SDK: OSX,IOS,IOS_SIMULATOR,TVOS,TVOS_SIMULATOR,WATCHOS,WATCHOS_SIMULATOR"
-  echo "TARGET: macosx,iphoneos,iphonesimulator,appletvos,appletvsimulator,watchos,watchsimulator"
+  echo "SDK: OSX"
+  echo "TARGET: macosx"
   echo "example: ./utils/build-overlay AVFoundation OSX macosx"
   exit 1
 }

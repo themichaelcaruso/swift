@@ -52,17 +52,11 @@ done
 
 typeset -A SDKS
 SDKS[macosx]="x86_64"
-SDKS[iphoneos]="arm64"
-SDKS[appletvos]="arm64"
-SDKS[watchos]="armv7k"
 
 SDKS_ORDERED=(macosx iphoneos appletvos watchos)
 
 typeset -A CMAKE_DEPENDS_NAME
 CMAKE_DEPENDS_NAME[macosx]="SWIFT_MODULE_DEPENDS_OSX"
-CMAKE_DEPENDS_NAME[iphoneos]="SWIFT_MODULE_DEPENDS_IOS"
-CMAKE_DEPENDS_NAME[appletvos]="SWIFT_MODULE_DEPENDS_TVOS"
-CMAKE_DEPENDS_NAME[watchos]="SWIFT_MODULE_DEPENDS_WATCHOS"
 
 echo $1
 for sdk in $SDKS_ORDERED; do

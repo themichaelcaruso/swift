@@ -30,14 +30,8 @@ def get_verify_toolchain_modules_commands(toolchain_dir, sil_opt):
         return []
     if toolchain_basename.startswith('XcodeDefault'):
         toolchain_name = 'XcodeDefault'
-    if toolchain_basename.startswith('tvOS'):
-        toolchain_name = 'tvOS'
     if toolchain_basename.startswith('OSX'):
         toolchain_name = 'OSX'
-    if toolchain_basename.startswith('watchOS'):
-        toolchain_name = 'watchOS'
-    if toolchain_basename.startswith('iOS'):
-        toolchain_name = 'iOS'
 
     return get_verify_resource_dir_modules_commands(
         os.path.join(toolchain_dir, 'usr', 'lib', 'swift'),
@@ -59,16 +53,7 @@ def get_verify_resource_dir_modules_commands(
     print("sil-opt path: " + sil_opt)
 
     known_platforms = [
-        ('appletvos', 'arm64', 'arm64-apple-tvos9.0'),
-        ('appletvsimulator', 'x86_64', 'x86_64-apple-tvos9.0'),
-        ('iphoneos', 'armv7', 'armv7-apple-ios7.0'),
-        ('iphoneos', 'armv7s', 'armv7s-apple-ios7.0'),
-        ('iphoneos', 'arm64', 'arm64-apple-ios7.0'),
-        ('iphonesimulator', 'i386', 'i386-apple-ios7.0'),
-        ('iphonesimulator', 'x86_64', 'x86_64-apple-ios7.0'),
-        ('macosx', 'x86_64', 'x86_64-apple-macosx10.9'),
-        ('watchos', 'armv7k', 'armv7k-apple-watchos2.0'),
-        ('watchsimulator', 'i386', 'i386-apple-watchos2.0'),
+        ('macosx', 'x86_64', 'x86_64-apple-macosx10.9')
     ]
 
     commands = []

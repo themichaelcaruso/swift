@@ -1727,19 +1727,6 @@ ModuleDecl *ClangImporter::getImportedHeaderModule() const {
 PlatformAvailability::PlatformAvailability(LangOptions &langOpts)
     : platformKind(targetPlatform(langOpts)) {
   switch (platformKind) {
-  case PlatformKind::iOS:
-  case PlatformKind::iOSApplicationExtension:
-  case PlatformKind::tvOS:
-  case PlatformKind::tvOSApplicationExtension:
-    deprecatedAsUnavailableMessage =
-        "APIs deprecated as of iOS 7 and earlier are unavailable in Swift";
-    break;
-
-  case PlatformKind::watchOS:
-  case PlatformKind::watchOSApplicationExtension:
-    deprecatedAsUnavailableMessage = "";
-    break;
-
   case PlatformKind::OSX:
   case PlatformKind::OSXApplicationExtension:
     deprecatedAsUnavailableMessage =
@@ -1757,22 +1744,6 @@ bool PlatformAvailability::isPlatformRelevant(StringRef name) const {
     return name == "macos";
   case PlatformKind::OSXApplicationExtension:
     return name == "macos" || name == "macos_app_extension";
-
-  case PlatformKind::iOS:
-    return name == "ios";
-  case PlatformKind::iOSApplicationExtension:
-    return name == "ios" || name == "ios_app_extension";
-
-  case PlatformKind::tvOS:
-    return name == "tvos";
-  case PlatformKind::tvOSApplicationExtension:
-    return name == "tvos" || name == "tvos_app_extension";
-
-  case PlatformKind::watchOS:
-    return name == "watchos";
-  case PlatformKind::watchOSApplicationExtension:
-    return name == "watchos" || name == "watchos_app_extension";
-
   case PlatformKind::none:
     return false;
   }
@@ -1791,19 +1762,6 @@ bool PlatformAvailability::treatDeprecatedAsUnavailable(
     // Anything deprecated in OSX 10.9.x and earlier is unavailable in Swift.
     return major < 10 ||
            (major == 10 && (!minor.hasValue() || minor.getValue() <= 9));
-
-  case PlatformKind::iOS:
-  case PlatformKind::iOSApplicationExtension:
-  case PlatformKind::tvOS:
-  case PlatformKind::tvOSApplicationExtension:
-    // Anything deprecated in iOS 7.x and earlier is unavailable in Swift.
-    return major <= 7;
-
-  case PlatformKind::watchOS:
-  case PlatformKind::watchOSApplicationExtension:
-    // No deprecation filter on watchOS
-    return false;
-
   default:
     return false;
   }

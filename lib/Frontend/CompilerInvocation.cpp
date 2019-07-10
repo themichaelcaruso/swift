@@ -257,7 +257,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
   Opts.EnableOperatorDesignatedTypes |=
       Args.hasArg(OPT_enable_operator_designated_types);
-  
+
   Opts.EnableOpaqueResultTypes |=
       Args.hasArg(OPT_enable_opaque_result_types);
 
@@ -281,7 +281,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
   if (FrontendOpts.InputKind == InputFileKind::SIL)
     Opts.DisableAvailabilityChecking = true;
-  
+
   if (auto A = Args.getLastArg(OPT_enable_access_control,
                                OPT_disable_access_control)) {
     Opts.EnableAccessControl
@@ -315,7 +315,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     Opts.EnableTargetOSChecking
       = A->getOption().matches(OPT_enable_target_os_checking);
   }
-  
+
   Opts.EnableASTScopeLookup |= Args.hasArg(OPT_enable_astscope_lookup);
   Opts.DebugConstraintSolver |= Args.hasArg(OPT_debug_constraints);
   Opts.NamedLazyMemberLoading &= !Args.hasArg(OPT_disable_named_lazy_member_loading);
@@ -325,7 +325,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     Opts.BuildSyntaxTree = true;
     Opts.VerifySyntaxTree = true;
   }
-  
+
   if (Args.hasArg(OPT_enable_experimental_dependencies))
     Opts.EnableExperimentalDependencies = true;
 
@@ -374,7 +374,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     }
   }
   llvm::sort(Opts.DebugConstraintSolverOnLines);
-  
+
   if (const Arg *A = Args.getLastArg(OPT_debug_forbid_typecheck_prefix)) {
     Opts.DebugForbidTypecheckPrefix = A->getValue();
   }
@@ -421,7 +421,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
       Opts.MaxCircularityDepth = threshold;
     }
   }
-  
+
   for (const Arg *A : Args.filtered(OPT_D)) {
     Opts.addCustomConditionalCompilationFlag(A->getValue());
   }
@@ -476,10 +476,7 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
   Opts.EnableSILOpaqueValues |= Args.hasArg(OPT_enable_sil_opaque_values);
 
   Opts.UseDarwinPreStableABIBit =
-    (Target.isMacOSX() && Target.isMacOSXVersionLT(10, 14, 4)) ||
-    (Target.isiOS() && Target.isOSVersionLT(12, 2)) ||
-    (Target.isTvOS() && Target.isOSVersionLT(12, 2)) ||
-    (Target.isWatchOS() && Target.isOSVersionLT(5, 2));
+    (Target.isMacOSX() && Target.isMacOSXVersionLT(10, 14, 4));
 
   Opts.DisableConstraintSolverPerformanceHacks |=
       Args.hasArg(OPT_disable_constraint_solver_performance_hacks);
@@ -613,9 +610,9 @@ static bool ParseSearchPathArgs(SearchPathOptions &Opts,
   // Opts.RuntimeIncludePath is set by calls to
   // setRuntimeIncludePath() or setMainExecutablePath().
   // Opts.RuntimeImportPath is set by calls to
-  // setRuntimeIncludePath() or setMainExecutablePath() and 
+  // setRuntimeIncludePath() or setMainExecutablePath() and
   // updated by calls to setTargetTriple() or parseArgs().
-  // Assumes exactly one of setMainExecutablePath() or setRuntimeIncludePath() 
+  // Assumes exactly one of setMainExecutablePath() or setRuntimeIncludePath()
   // is called before setTargetTriple() and parseArgs().
   // TODO: improve the handling of RuntimeIncludePath.
 
@@ -1043,7 +1040,7 @@ static bool ParseIRGenArgs(IRGenOptions &Opts, ArgList &Args,
 
   if (Args.hasArg(OPT_use_jit))
     Opts.UseJIT = true;
-  
+
   for (const Arg *A : Args.filtered(OPT_verify_type_layout)) {
     Opts.VerifyTypeLayoutNames.push_back(A->getValue());
   }
@@ -1213,12 +1210,6 @@ static bool ParseMigratorArgs(MigratorOptions &Opts,
     auto &langVer = LangOpts.EffectiveLanguageVersion;
     if (Triple.isMacOSX())
       llvm::sys::path::append(dataPath, getScriptFileName("macos", langVer));
-    else if (Triple.isiOS())
-      llvm::sys::path::append(dataPath, getScriptFileName("ios", langVer));
-    else if (Triple.isTvOS())
-      llvm::sys::path::append(dataPath, getScriptFileName("tvos", langVer));
-    else if (Triple.isWatchOS())
-      llvm::sys::path::append(dataPath, getScriptFileName("watchos", langVer));
     else
       Supported = false;
     if (Supported) {

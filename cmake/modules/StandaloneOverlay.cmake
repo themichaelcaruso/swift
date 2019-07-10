@@ -38,12 +38,6 @@ set(SWIFT_DARWIN_XCRUN_TOOLCHAIN "XcodeDefault" CACHE STRING
 
 set(SWIFT_DARWIN_DEPLOYMENT_VERSION_OSX "10.9" CACHE STRING
     "Minimum deployment target version for macOS.")
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_IOS "7.0" CACHE STRING
-    "Minimum deployment target version for iOS.")
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_TVOS "9.0" CACHE STRING
-    "Minimum deployment target version for tvOS.")
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_WATCHOS "2.0" CACHE STRING
-    "Minimum deployment target version for watchOS.")
 
 set(SWIFT_INSTALL_COMPONENTS "sdk-overlay" CACHE STRING
   "A semicolon-separated list of install components.")
@@ -73,7 +67,7 @@ set(CMAKE_INSTALL_PREFIX
 
 
 set(SWIFT_APPLE_PLATFORMS
-  OSX IOS IOS_SIMULATOR TVOS TVOS_SIMULATOR WATCHOS WATCHOS_SIMULATOR)
+  OSX)
 
 # Flags used to indicate we are building a standalone overlay.
 # FIXME: We should cut this down to a single flag.

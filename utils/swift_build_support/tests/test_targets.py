@@ -25,9 +25,7 @@ class PlatformTargetsTestCase(unittest.TestCase):
         matches all of its targets' names and rejects non-matching names.
         """
         # Pick a few platforms with lots of targets
-        for platform in [StdlibDeploymentTarget.Linux,
-                         StdlibDeploymentTarget.iOS,
-                         StdlibDeploymentTarget.iOSSimulator]:
+        for platform in [StdlibDeploymentTarget.Linux]:
             for target in platform.targets:
                 self.assertTrue(platform.contains(target.name))
             self.assertFalse(platform.contains("fakeCPU-MSDOS"))

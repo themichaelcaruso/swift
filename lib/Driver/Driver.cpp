@@ -69,7 +69,7 @@ Driver::Driver(StringRef DriverExecutable,
   : Opts(createSwiftOptTable()), Diags(Diags),
     Name(Name), DriverExecutable(DriverExecutable),
     DefaultTargetTriple(llvm::sys::getDefaultTargetTriple()) {
-      
+
   // The driver kind must be parsed prior to parsing arguments, since that
   // affects how arguments are parsed.
   parseDriverKind(Args.slice(1));
@@ -99,7 +99,7 @@ void Driver::parseDriverKind(ArrayRef<const char *> Args) {
   .Case("swift-autolink-extract", DriverKind::AutolinkExtract)
   .Case("swift-format", DriverKind::SwiftFormat)
   .Default(None);
-  
+
   if (Kind.hasValue())
     driverKind = Kind.getValue();
   else if (!OptName.empty())
@@ -145,27 +145,6 @@ static void validateDeploymentTarget(DiagnosticEngine &diags,
     if (triple.isMacOSXVersionLT(10, 9))
       diags.diagnose(SourceLoc(), diag::error_os_minimum_deployment,
                      "OS X 10.9");
-  } else if (triple.isiOS()) {
-    if (triple.isTvOS()) {
-      if (triple.isOSVersionLT(9, 0)) {
-        diags.diagnose(SourceLoc(), diag::error_os_minimum_deployment,
-                       "tvOS 9.0");
-        return;
-      }
-    }
-    if (triple.isOSVersionLT(7))
-      diags.diagnose(SourceLoc(), diag::error_os_minimum_deployment,
-                     "iOS 7");
-    if (triple.isArch32Bit() && !triple.isOSVersionLT(11)) {
-      diags.diagnose(SourceLoc(), diag::error_ios_maximum_deployment_32,
-                     triple.getOSMajorVersion());
-    }
-  } else if (triple.isWatchOS()) {
-    if (triple.isOSVersionLT(2, 0)) {
-      diags.diagnose(SourceLoc(), diag::error_os_minimum_deployment,
-                     "watchOS 2.0");
-      return;
-    }
   }
 }
 
@@ -269,10 +248,6 @@ Driver::buildToolChain(const llvm::opt::InputArgList &ArgList) {
   switch (target.getOS()) {
   case llvm::Triple::Darwin:
   case llvm::Triple::MacOSX:
-  case llvm::Triple::IOS:
-  case llvm::Triple::TvOS:
-  case llvm::Triple::WatchOS:
-    return llvm::make_unique<toolchains::Darwin>(*this, target);
   case llvm::Triple::Linux:
     if (target.isAndroid())
       return llvm::make_unique<toolchains::Android>(*this, target);
@@ -898,7 +873,7 @@ Driver::buildCompilation(const ToolChain &TC,
       llvm_unreachable("Unknown OutputLevel argument!");
   }
 
-  
+
   // About to move argument list, so capture some flags that will be needed
   // later.
   const bool DriverPrintActions =
@@ -1320,14 +1295,6 @@ static bool isSDKTooOld(StringRef sdkPath, llvm::VersionTuple minVersion,
 static bool isSDKTooOld(StringRef sdkPath, const llvm::Triple &target) {
   if (target.isMacOSX()) {
     return isSDKTooOld(sdkPath, llvm::VersionTuple(10, 14), "OSX");
-
-  } else if (target.isiOS()) {
-    // Includes both iOS and TVOS.
-    return isSDKTooOld(sdkPath, llvm::VersionTuple(12, 0), "Simulator", "OS");
-
-  } else if (target.isWatchOS()) {
-    return isSDKTooOld(sdkPath, llvm::VersionTuple(5, 0), "Simulator", "OS");
-
   } else {
     return false;
   }
@@ -2575,7 +2542,7 @@ Job *Driver::buildJobsForAction(Compilation &C, const JobAction *JA,
 
   // 4. Construct a Job which produces the right CommandOutput.
   std::unique_ptr<Job> ownedJob = TC.constructJob(*JA, C, std::move(InputJobs),
-                                                  InputActions, 
+                                                  InputActions,
                                                   std::move(Output), OI);
   Job *J = C.addJob(std::move(ownedJob));
 

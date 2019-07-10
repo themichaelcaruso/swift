@@ -286,15 +286,6 @@ set(SWIFT_DARWIN_STDLIB_PRIVATE_INSTALL_NAME_DIR "@rpath" CACHE STRING
 set(SWIFT_DARWIN_DEPLOYMENT_VERSION_OSX "10.9" CACHE STRING
     "Minimum deployment target version for OS X")
 
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_IOS "7.0" CACHE STRING
-    "Minimum deployment target version for iOS")
-
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_TVOS "9.0" CACHE STRING
-    "Minimum deployment target version for tvOS")
-
-set(SWIFT_DARWIN_DEPLOYMENT_VERSION_WATCHOS "2.0" CACHE STRING
-    "Minimum deployment target version for watchOS")
-
 #
 # User-configurable debugging options.
 #
@@ -564,7 +555,7 @@ set(SWIFT_DARWIN_EMBEDDED_VARIANTS "^(iphoneos|iphonesimulator|appletvos|appletv
 #  if("${SWIFT_HOST_VARIANT_SDK}" IN_LIST SWIFT_APPLE_PLATFORMS)
 #    ...
 #  endif()
-set(SWIFT_APPLE_PLATFORMS "IOS" "IOS_SIMULATOR" "TVOS" "TVOS_SIMULATOR" "WATCHOS" "WATCHOS_SIMULATOR" "OSX")
+set(SWIFT_APPLE_PLATFORMS "OSX")
 
 # Configuration flags passed to all of our invocations of gyb.  Try to
 # avoid making up new variable names here if you can find a CMake
@@ -734,7 +725,7 @@ elseif("${SWIFT_HOST_VARIANT_SDK}" STREQUAL "ANDROID")
   set(SWIFT_PRIMARY_VARIANT_SDK_default  "${SWIFT_HOST_VARIANT_SDK}")
   set(SWIFT_PRIMARY_VARIANT_ARCH_default "${SWIFT_HOST_VARIANT_ARCH}")
 
-elseif("${SWIFT_HOST_VARIANT_SDK}" MATCHES "(OSX|IOS*|TVOS*|WATCHOS*)")
+elseif("${SWIFT_HOST_VARIANT_SDK}" MATCHES "(OSX)")
 
   set(SWIFT_HOST_VARIANT "macosx" CACHE STRING
       "Deployment OS for Swift host tools (the compiler) [macosx, iphoneos].")
@@ -751,21 +742,8 @@ elseif("${SWIFT_HOST_VARIANT_SDK}" MATCHES "(OSX|IOS*|TVOS*|WATCHOS*)")
 
   include(DarwinSDKs)
 
-  # FIXME: guess target variant based on the host.
-  # if(SWIFT_HOST_VARIANT MATCHES "^macosx")
-  #   set(SWIFT_PRIMARY_VARIANT_GUESS "OSX-R")
-  # elseif(SWIFT_HOST_VARIANT MATCHES "^iphoneos")
-  #   set(SWIFT_PRIMARY_VARIANT_GUESS "IOS-R")
-  # else()
-  #   message(FATAL_ERROR "Unknown SWIFT_HOST_VARIANT '${SWIFT_HOST_VARIANT}'")
-  # endif()
-  #
-  # set(SWIFT_PRIMARY_VARIANT ${SWIFT_PRIMARY_VARIANT_GUESS} CACHE STRING
-  #    "[OSX-DA, OSX-RA, OSX-R, IOS-DA, IOS-RA, IOS-R, IOS_SIMULATOR-DA, IOS_SIMULATOR-RA, IOS_SIMULATOR-R]")
-  #
-  # Primary variant is always OSX; even on iOS hosts.
-  set(SWIFT_PRIMARY_VARIANT_SDK_default "OSX")
-  set(SWIFT_PRIMARY_VARIANT_ARCH_default "x86_64")
+  set(SWIFT_PRIMARY_VARIANT_SDK_default "VEXOS")
+  set(SWIFT_PRIMARY_VARIANT_ARCH_default "thumbv7")
 
 endif()
 
@@ -814,9 +792,7 @@ if(swift_build_windows AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
   configure_sdk_windows("Windows" "msvc" "${SWIFT_SDK_WINDOWS_ARCHITECTURES}")
 endif()
 
-if("${SWIFT_SDKS}" STREQUAL "")
-  set(SWIFT_SDKS "${SWIFT_CONFIGURED_SDKS}")
-endif()
+set(SWIFT_SDKS "VEXOS")
 
 list_subtract("${SWIFT_SDKS}" "${SWIFT_CONFIGURED_SDKS}" unknown_sdks)
 
@@ -1106,16 +1082,6 @@ if(SWIFT_INCLUDE_TOOLS)
 endif()
 
 add_subdirectory(utils)
-
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  if(SWIFT_BUILD_PERF_TESTSUITE)
-    add_subdirectory(benchmark)
-  endif()
-  if(SWIFT_BUILD_EXTERNAL_PERF_TESTSUITE)
-    include(SwiftExternalBenchmarkBuild)
-    add_external_benchmark_suite()
-  endif()
-endif()
 
 if(SWIFT_INCLUDE_TESTS)
   add_subdirectory(test)

@@ -63,13 +63,8 @@ function(get_test_dependencies SDK result_var_name)
          llvm-strings dsymutil)
   endif()
 
-  if(("${SDK}" STREQUAL "IOS") OR
-     ("${SDK}" STREQUAL "TVOS") OR
-     ("${SDK}" STREQUAL "WATCHOS") OR
+  if(
      ("${SDK}" STREQUAL "OSX") OR
-     ("${SDK}" STREQUAL "IOS_SIMULATOR") OR
-     ("${SDK}" STREQUAL "TVOS_SIMULATOR") OR
-     ("${SDK}" STREQUAL "WATCHOS_SIMULATOR") OR
      ("${SDK}" STREQUAL "LINUX") OR
      ("${SDK}" STREQUAL "CYGWIN") OR
      ("${SDK}" STREQUAL "FREEBSD") OR
@@ -246,10 +241,7 @@ _Block_release(void) { }\n")
 
     set(command_upload_stdlib)
     set(command_upload_swift_reflection_test)
-    if("${SDK}" STREQUAL "IOS" OR "${SDK}" STREQUAL "TVOS" OR "${SDK}" STREQUAL "WATCHOS")
-      # These are supported testing SDKs, but their implementation of
-      # `command_upload_stdlib` is hidden.
-    elseif("${SDK}" STREQUAL "ANDROID")
+    if("${SDK}" STREQUAL "ANDROID")
       if("${SWIFT_ANDROID_DEPLOY_DEVICE_PATH}" STREQUAL "")
         message(FATAL_ERROR
             "When running Android host tests, you must specify the directory on the device "

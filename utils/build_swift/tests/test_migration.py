@@ -59,12 +59,11 @@ class TestMigrateSwiftSDKs(TestCase):
 
     def test_multiple_swift_sdk_flags(self):
         args = [
-            '--swift-sdks=OSX',
-            '--swift-sdks=OSX;IOS;IOS_SIMULATOR'
+            '--swift-sdks=OSX'
         ]
 
         args = migration.migrate_swift_sdks(args)
-        target_names = _get_sdk_target_names(['OSX', 'IOS', 'IOS_SIMULATOR'])
+        target_names = _get_sdk_target_names(['OSX'])
 
         self.assertListEqual(args, [
             '--stdlib-deployment-targets={}'.format(' '.join(target_names))

@@ -17,61 +17,7 @@
 
 using namespace swift;
 
-bool swift::tripleIsiOSSimulator(const llvm::Triple &triple) {
-  llvm::Triple::ArchType arch = triple.getArch();
-  return (triple.isiOS() &&
-          // FIXME: transitional, this should eventually stop testing arch, and
-          // switch to only checking the -environment field.
-          (triple.isSimulatorEnvironment() ||
-           arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64));
-}
-
-bool swift::tripleIsAppleTVSimulator(const llvm::Triple &triple) {
-  llvm::Triple::ArchType arch = triple.getArch();
-  return (triple.isTvOS() &&
-          // FIXME: transitional, this should eventually stop testing arch, and
-          // switch to only checking the -environment field.
-          (triple.isSimulatorEnvironment() ||
-           arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64));
-}
-
-bool swift::tripleIsWatchSimulator(const llvm::Triple &triple) {
-  llvm::Triple::ArchType arch = triple.getArch();
-  return (triple.isWatchOS() &&
-          // FIXME: transitional, this should eventually stop testing arch, and
-          // switch to only checking the -environment field.
-          (triple.isSimulatorEnvironment() ||
-           arch == llvm::Triple::x86 || arch == llvm::Triple::x86_64));
-}
-
-bool swift::tripleIsAnySimulator(const llvm::Triple &triple) {
-  // FIXME: transitional, this should eventually just use the -environment
-  // field.
-  return triple.isSimulatorEnvironment() ||
-    tripleIsiOSSimulator(triple) ||
-    tripleIsWatchSimulator(triple) ||
-    tripleIsAppleTVSimulator(triple);
-}
-
 DarwinPlatformKind swift::getDarwinPlatformKind(const llvm::Triple &triple) {
-  if (triple.isiOS()) {
-    if (triple.isTvOS()) {
-      if (tripleIsAppleTVSimulator(triple))
-        return DarwinPlatformKind::TvOSSimulator;
-      return DarwinPlatformKind::TvOS;
-    }
-
-    if (tripleIsiOSSimulator(triple))
-      return DarwinPlatformKind::IPhoneOSSimulator;
-    return DarwinPlatformKind::IPhoneOS;
-  }
-
-  if (triple.isWatchOS()) {
-    if (tripleIsWatchSimulator(triple))
-      return DarwinPlatformKind::WatchOSSimulator;
-    return DarwinPlatformKind::WatchOS;
-  }
-
   if (triple.isMacOSX())
     return DarwinPlatformKind::MacOS;
 
@@ -82,15 +28,6 @@ DarwinPlatformKind swift::getNonSimulatorPlatform(DarwinPlatformKind platform) {
   switch (platform) {
   case DarwinPlatformKind::MacOS:
     return DarwinPlatformKind::MacOS;
-  case DarwinPlatformKind::IPhoneOS:
-  case DarwinPlatformKind::IPhoneOSSimulator:
-    return DarwinPlatformKind::IPhoneOS;
-  case DarwinPlatformKind::TvOS:
-  case DarwinPlatformKind::TvOSSimulator:
-    return DarwinPlatformKind::TvOS;
-  case DarwinPlatformKind::WatchOS:
-  case DarwinPlatformKind::WatchOSSimulator:
-    return DarwinPlatformKind::WatchOS;
   }
   llvm_unreachable("Unsupported Darwin platform");
 }
@@ -99,18 +36,6 @@ static StringRef getPlatformNameForDarwin(const DarwinPlatformKind platform) {
   switch (platform) {
   case DarwinPlatformKind::MacOS:
     return "macosx";
-  case DarwinPlatformKind::IPhoneOS:
-    return "iphoneos";
-  case DarwinPlatformKind::IPhoneOSSimulator:
-    return "iphonesimulator";
-  case DarwinPlatformKind::TvOS:
-    return "appletvos";
-  case DarwinPlatformKind::TvOSSimulator:
-    return "appletvsimulator";
-  case DarwinPlatformKind::WatchOS:
-    return "watchos";
-  case DarwinPlatformKind::WatchOSSimulator:
-    return "watchsimulator";
   }
   llvm_unreachable("Unsupported Darwin platform");
 }
@@ -145,9 +70,6 @@ StringRef swift::getPlatformNameForTriple(const llvm::Triple &triple) {
     return "";
   case llvm::Triple::Darwin:
   case llvm::Triple::MacOSX:
-  case llvm::Triple::IOS:
-  case llvm::Triple::TvOS:
-  case llvm::Triple::WatchOS:
     return getPlatformNameForDarwin(getDarwinPlatformKind(triple));
   case llvm::Triple::Linux:
     return triple.isAndroid() ? "android" : "linux";
@@ -312,4 +234,3 @@ llvm::Triple swift::getTargetSpecificModuleTriple(const llvm::Triple &triple) {
   // Other platforms get no normalization.
   return triple;
 }
-

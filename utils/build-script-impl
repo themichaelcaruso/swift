@@ -120,12 +120,6 @@ KNOWN_SETTINGS=(
     skip-build-cygwin           ""               "set to skip building Swift stdlibs for Cygwin"
     skip-build-haiku            ""               "set to skip building Swift stdlibs for Haiku"
     skip-build-osx              ""               "set to skip building Swift stdlibs for OS X"
-    skip-build-ios-device       ""               "set to skip building Swift stdlibs for iOS devices (i.e. build simulators only)"
-    skip-build-ios-simulator    ""               "set to skip building Swift stdlibs for iOS simulators (i.e. build devices only)"
-    skip-build-tvos-device      ""               "set to skip building Swift stdlibs for tvOS devices (i.e. build simulators only)"
-    skip-build-tvos-simulator   ""               "set to skip building Swift stdlibs for tvOS simulators (i.e. build devices only)"
-    skip-build-watchos-device   ""               "set to skip building Swift stdlibs for Apple watchOS devices (i.e. build simulators only)"
-    skip-build-watchos-simulator ""              "set to skip building Swift stdlibs for Apple watchOS simulators (i.e. build devices only)"
     skip-build-android          ""               "set to skip building Swift stdlibs for Android"
     skip-build-vex              ""               "set to skip building Swift stdlibs for VEX"
     skip-build-lldb             ""               "set to skip building LLDB"
@@ -160,13 +154,6 @@ KNOWN_SETTINGS=(
     skip-test-cygwin            ""               "set to skip testing Swift stdlibs for Cygwin"
     skip-test-haiku             ""               "set to skip testing Swift stdlibs for Haiku"
     skip-test-osx               ""               "set to skip testing Swift stdlibs for OS X"
-    skip-test-ios-32bit-simulator     ""         "set to skip testing Swift stdlibs for iOS 32bit simulators"
-    skip-test-ios-simulator     ""               "set to skip testing Swift stdlibs for iOS simulators (i.e. test devices only)"
-    skip-test-ios-host          ""               "set to skip testing the host parts of the iOS toolchain"
-    skip-test-tvos-simulator    ""               "set to skip testing Swift stdlibs for tvOS simulators (i.e. test devices only)"
-    skip-test-tvos-host         ""               "set to skip testing the host parts of the tvOS toolchain"
-    skip-test-watchos-simulator  ""              "set to skip testing Swift stdlibs for Apple watchOS simulators (i.e. test devices only)"
-    skip-test-watchos-host      ""               "set to skip testing the host parts of the watchOS toolchain"
     skip-test-android           ""               "set to skip testing Swift stdlibs for Android"
     skip-test-android-host      ""               "set to skip testing the host parts of the Android toolchain"
     skip-test-vexos               ""               "set to skip testing Swift stdlibs for VEX"
@@ -228,9 +215,6 @@ KNOWN_SETTINGS=(
     cross-compile-install-prefixes      ""       "semicolon-separated list of install prefixes to use for the cross-compiled hosts. The list expands, so if there are more cross-compile hosts than prefixes, unmatched hosts use the last prefix in the list"
     skip-merge-lipo-cross-compile-tools ""       "set to skip running merge-lipo after installing cross-compiled host Swift tools"
     darwin-deployment-version-osx     "10.9"     "minimum deployment target version for OS X"
-    darwin-deployment-version-ios     "7.0"      "minimum deployment target version for iOS"
-    darwin-deployment-version-tvos    "9.0"      "minimum deployment target version for tvOS"
-    darwin-deployment-version-watchos "2.0"      "minimum deployment target version for watchOS"
     extra-cmake-options         ""               "Extra options to pass to CMake for all targets"
     extra-swift-args            ""               "Extra arguments to pass to swift modules which match regex. Assumed to be a flattened cmake list consisting of [module_regexp, args, module_regexp, args, ...]"
     sil-verify-all              "0"              "If enabled, run the SIL verifier after each transform when building Swift files during this build process"
@@ -489,9 +473,7 @@ function set_build_options_for_host() {
                     ;;
                 esac
         ;;
-        macosx-* | iphoneos-* | iphonesimulator-* | \
-          appletvos-* | appletvsimulator-* | \
-            watchos-* | watchsimulator-*)
+        macosx-*)
             case ${host} in
                 macosx-x86_64)
                     xcrun_sdk_name="macosx"
@@ -512,142 +494,7 @@ function set_build_options_for_host() {
                         --sysroot="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
                     )
                     ;;
-                iphonesimulator-i386)
-                    xcrun_sdk_name="iphonesimulator"
-                    llvm_target_arch="X86"
-                    SWIFT_HOST_TRIPLE="i386-apple-ios${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                    SWIFT_HOST_VARIANT="iphonesimulator"
-                    SWIFT_HOST_VARIANT_SDK="IOS_SIMULATOR"
-                    SWIFT_HOST_VARIANT_ARCH="i386"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                iphonesimulator-x86_64)
-                    xcrun_sdk_name="iphonesimulator"
-                    llvm_target_arch="X86"
-                    SWIFT_HOST_TRIPLE="x86_64-apple-ios${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                    SWIFT_HOST_VARIANT="iphonesimulator"
-                    SWIFT_HOST_VARIANT_SDK="IOS_SIMULATOR"
-                    SWIFT_HOST_VARIANT_ARCH="x86_64"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                iphoneos-armv7)
-                    xcrun_sdk_name="iphoneos"
-                    llvm_target_arch="ARM"
-                    SWIFT_HOST_TRIPLE="armv7-apple-ios${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                    SWIFT_HOST_VARIANT="iphoneos"
-                    SWIFT_HOST_VARIANT_SDK="IOS"
-                    SWIFT_HOST_VARIANT_ARCH="armv7"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                iphoneos-armv7s)
-                    xcrun_sdk_name="iphoneos"
-                    llvm_target_arch="ARM"
-                    SWIFT_HOST_TRIPLE="armv7s-apple-ios${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                    SWIFT_HOST_VARIANT="iphoneos"
-                    SWIFT_HOST_VARIANT_SDK="IOS"
-                    SWIFT_HOST_VARIANT_ARCH="armv7s"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                iphoneos-arm64)
-                    xcrun_sdk_name="iphoneos"
-                    llvm_target_arch="AArch64"
-                    SWIFT_HOST_TRIPLE="arm64-apple-ios${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                    SWIFT_HOST_VARIANT="iphoneos"
-                    SWIFT_HOST_VARIANT_SDK="IOS"
-                    SWIFT_HOST_VARIANT_ARCH="arm64"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                appletvsimulator-x86_64)
-                    xcrun_sdk_name="appletvsimulator"
-                    llvm_target_arch="X86"
-                    SWIFT_HOST_TRIPLE="x86_64-apple-tvos${DARWIN_DEPLOYMENT_VERSION_TVOS}"
-                    SWIFT_HOST_VARIANT="appletvsimulator"
-                    SWIFT_HOST_VARIANT_SDK="TVOS_SIMULATOR"
-                    SWIFT_HOST_VARIANT_ARCH="x86_64"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                appletvos-arm64)
-                    xcrun_sdk_name="appletvos"
-                    llvm_target_arch="AArch64"
-                    SWIFT_HOST_TRIPLE="arm64-apple-tvos${DARWIN_DEPLOYMENT_VERSION_TVOS}"
-                    SWIFT_HOST_VARIANT="appletvos"
-                    SWIFT_HOST_VARIANT_SDK="TVOS"
-                    SWIFT_HOST_VARIANT_ARCH="arm64"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                watchsimulator-i386)
-                    xcrun_sdk_name="watchsimulator"
-                    llvm_target_arch="X86"
-                    SWIFT_HOST_TRIPLE="i386-apple-watchos${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
-                    SWIFT_HOST_VARIANT="watchsimulator"
-                    SWIFT_HOST_VARIANT_SDK="WATCHOS_SIMULATOR"
-                    SWIFT_HOST_VARIANT_ARCH="i386"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                watchos-armv7k)
-                    xcrun_sdk_name="watchos"
-                    llvm_target_arch="ARM"
-                    SWIFT_HOST_TRIPLE="armv7k-apple-watchos${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
-                    SWIFT_HOST_VARIANT="watchos"
-                    SWIFT_HOST_VARIANT_SDK="WATCHOS"
-                    SWIFT_HOST_VARIANT_ARCH="armv7k"
-
-                    cmake_osx_deployment_target=""
-                    cmark_cmake_options=(
-                        -DCMAKE_C_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_CXX_FLAGS="$(cmark_c_flags ${host})"
-                        -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                    )
-                    ;;
-                *)
+              *)
                     echo "Unknown host for swift tools: ${host}"
                     exit 1
                     ;;
@@ -707,9 +554,6 @@ function set_build_options_for_host() {
 
             swift_cmake_options+=(
                 -DSWIFT_DARWIN_DEPLOYMENT_VERSION_OSX="${DARWIN_DEPLOYMENT_VERSION_OSX}"
-                -DSWIFT_DARWIN_DEPLOYMENT_VERSION_IOS="${DARWIN_DEPLOYMENT_VERSION_IOS}"
-                -DSWIFT_DARWIN_DEPLOYMENT_VERSION_TVOS="${DARWIN_DEPLOYMENT_VERSION_TVOS}"
-                -DSWIFT_DARWIN_DEPLOYMENT_VERSION_WATCHOS="${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
             )
             ;;
         *)
@@ -1049,7 +893,7 @@ function make_relative_symlink() {
 CROSS_COMPILE_HOSTS=($CROSS_COMPILE_HOSTS)
 for t in "${CROSS_COMPILE_HOSTS[@]}"; do
     case ${t} in
-        iphone* | appletv* | watch* | linux-armv6 | linux-armv7 | vex-thumbv7 )
+        iphone* | linux-armv6 | linux-armv7 | vexos-thumbv7 )
             ;;
         *)
             echo "Unknown host to cross-compile for: ${t}"
@@ -1147,7 +991,7 @@ function should_include_host_in_lipo() {
 function host_has_darwin_symbols() {
     local host="$1"
     case ${host} in
-        macosx* | iphone* | appletv* | watch* )
+        macosx* )
             echo 1
             ;;
     esac
@@ -1376,68 +1220,6 @@ function calculate_targets_for_host() {
                 build_external_benchmark_this_target=$(not ${SKIP_BUILD_OSX})
                 test_benchmark_this_target=$(not ${SKIP_BUILD_OSX})
                 ;;
-            iphoneos-*)
-                swift_sdk="IOS"
-                build_for_this_target=$(not ${SKIP_BUILD_IOS_DEVICE})
-                if [[ ! "${SKIP_TEST_IOS_HOST}" ]] ; then
-                    test_host_only=1
-                else
-                    test_this_target=
-                fi
-                build_benchmark_this_target=$(not ${SKIP_BUILD_IOS_DEVICE})
-                build_external_benchmark_this_target=$(not ${SKIP_BUILD_IOS_DEVICE})
-
-                # Never build iOS armv7s benchmarks.
-                if [[ "${stdlib_deployment_target}" == "iphoneos-armv7s" ]]; then
-                    build_benchmark_this_target=
-                    build_external_benchmark_this_target=
-                fi
-                ;;
-            iphonesimulator-x86_64)
-                swift_sdk="IOS_SIMULATOR"
-                build_for_this_target=$(not ${SKIP_BUILD_IOS_SIMULATOR})
-                test_this_target=$(not ${SKIP_TEST_IOS_SIMULATOR})
-                ;;
-            iphonesimulator-i386)
-                swift_sdk="IOS_SIMULATOR"
-                build_for_this_target=$(not ${SKIP_BUILD_IOS_SIMULATOR})
-                if [[ "${SKIP_TEST_IOS_SIMULATOR}" == "1" ]] ; then
-                    SKIP_TEST_IOS_32BIT_SIMULATOR="${SKIP_TEST_IOS_SIMULATOR}"
-                fi
-                test_this_target=$(not ${SKIP_TEST_IOS_32BIT_SIMULATOR})
-                ;;
-            appletvos-*)
-                swift_sdk="TVOS"
-                build_for_this_target=$(not ${SKIP_BUILD_TVOS_DEVICE})
-                if [[ ! "${SKIP_TEST_TVOS_HOST}" ]] ; then
-                    test_host_only=1
-                else
-                    test_this_target=
-                fi
-                build_benchmark_this_target=$(not ${SKIP_BUILD_TVOS_DEVICE})
-                build_external_benchmark_this_target=$(not ${SKIP_BUILD_TVOS_DEVICE})
-                ;;
-            appletvsimulator-*)
-                swift_sdk="TVOS_SIMULATOR"
-                build_for_this_target=$(not ${SKIP_BUILD_TVOS_SIMULATOR})
-                test_this_target=$(not ${SKIP_TEST_TVOS_SIMULATOR})
-                ;;
-            watchos-*)
-                swift_sdk="WATCHOS"
-                build_for_this_target=$(not ${SKIP_BUILD_WATCHOS_DEVICE})
-                if [[ ! "${SKIP_TEST_WATCHOS_HOST}" ]] ; then
-                    test_host_only=1
-                else
-                    test_this_target=
-                fi
-                build_benchmark_this_target=$(not ${SKIP_BUILD_WATCHOS_DEVICE})
-                build_external_benchmark_this_target=$(not ${SKIP_BUILD_WATCHOS_DEVICE})
-                ;;
-            watchsimulator-*)
-                swift_sdk="WATCHOS_SIMULATOR"
-                build_for_this_target=$(not ${SKIP_BUILD_WATCHOS_SIMULATOR})
-                test_this_target=$(not ${SKIP_TEST_WATCHOS_SIMULATOR})
-                ;;
             android-*)
                 swift_sdk="ANDROID"
                 build_for_this_target=$(not ${SKIP_BUILD_ANDROID})
@@ -1449,11 +1231,11 @@ function calculate_targets_for_host() {
                 ;;
             vexos-*)
                 swift_sdk="VEXOS"
-                build_for_this_target=$(not ${SKIP_BUILD_VEX})
+                build_for_this_target=$(not ${SKIP_BUILD_VEXOS})
                 if [[ ! "${SKIP_TEST_VEXOS_HOST}" ]] ; then
                     test_host_only=1
                 else
-                    test_this_target=$(not ${SKIP_TEST_VEX})
+                    test_this_target=$(not ${SKIP_TEST_VEXOS})
                 fi
                 ;;
             *)
@@ -1667,33 +1449,6 @@ function common_cross_c_flags() {
     echo -n "${COMMON_C_FLAGS}"
 
     case $1 in
-        iphonesimulator-i386)
-            echo -n " -arch i386 -mios-simulator-version-min=${DARWIN_DEPLOYMENT_VERSION_IOS}"
-            ;;
-        iphonesimulator-x86_64)
-            echo -n " -arch x86_64 -mios-simulator-version-min=${DARWIN_DEPLOYMENT_VERSION_IOS}"
-            ;;
-        iphoneos-armv7)
-            echo -n " -arch armv7 -miphoneos-version-min=${DARWIN_DEPLOYMENT_VERSION_IOS}"
-            ;;
-        iphoneos-armv7s)
-            echo -n " -arch armv7s -miphoneos-version-min=${DARWIN_DEPLOYMENT_VERSION_IOS}"
-            ;;
-        iphoneos-arm64)
-            echo -n " -arch arm64 -miphoneos-version-min=${DARWIN_DEPLOYMENT_VERSION_IOS}"
-            ;;
-        appletvsimulator-x86_64)
-            echo -n " -arch x86_64 -mtvos-simulator-version-min=${DARWIN_DEPLOYMENT_VERSION_TVOS}"
-            ;;
-        appletvos-arm64)
-            echo -n " -arch arm64 -mtvos-version-min=${DARWIN_DEPLOYMENT_VERSION_TVOS}"
-            ;;
-        watchsimulator-i386)
-            echo -n " -arch i386 -mwatchos-simulator-version-min=${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
-            ;;
-        watchos-armv7k)
-            echo -n " -arch armv7k -mwatchos-version-min=${DARWIN_DEPLOYMENT_VERSION_WATCHOS}"
-            ;;
         vex-thumbv7)
             echo -n " -arch thumbv7"
             ;;
@@ -2884,13 +2639,7 @@ for host in "${ALL_HOSTS[@]}"; do
                     fi
                 fi
 
-                if [[ $(not ${SKIP_BUILD_IOS_SIMULATOR}) ]]; then
-                    call "xcodebuild" -configuration "${PLAYGROUNDSUPPORT_BUILD_TYPE}" -workspace swift-xcode-playground-support.xcworkspace -scheme BuildScript-iOS -sdk iphonesimulator -arch x86_64 -derivedDataPath "${build_dir}"/DerivedData SWIFT_EXEC="${SWIFTC_BIN}" SWIFT_LIBRARY_PATH="${SWIFT_LIB_DIR}/\$(PLATFORM_NAME)" ONLY_ACTIVE_ARCH=NO
-                fi
 
-                if [[ $(not ${SKIP_BUILD_TVOS_SIMULATOR}) ]]; then
-                    call "xcodebuild" -configuration "${PLAYGROUNDSUPPORT_BUILD_TYPE}" -workspace swift-xcode-playground-support.xcworkspace -scheme BuildScript-tvOS -sdk appletvsimulator -arch x86_64 -derivedDataPath "${build_dir}"/DerivedData SWIFT_EXEC="${SWIFTC_BIN}" SWIFT_LIBRARY_PATH="${SWIFT_LIB_DIR}/\$(PLATFORM_NAME)" ONLY_ACTIVE_ARCH=NO
-                fi
                 popd
                 { set +x; } 2>/dev/null
                 continue
@@ -3790,13 +3539,6 @@ for host in "${ALL_HOSTS[@]}"; do
                             call "xcodebuild" install -configuration "${PLAYGROUNDSUPPORT_BUILD_TYPE}" -workspace swift-xcode-playground-support.xcworkspace -scheme BuildScript-macOS -sdk macosx -arch x86_64 -derivedDataPath "${PLAYGROUNDSUPPORT_BUILD_DIR}"/DerivedData SWIFT_EXEC="${SWIFTC_BIN}" SWIFT_LIBRARY_PATH="${SWIFT_LIB_DIR}/\$(PLATFORM_NAME)" ONLY_ACTIVE_ARCH=NO DSTROOT="$(get_host_install_destdir ${host})" TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_PREFIX}" BUILD_PLAYGROUNDLOGGER_TESTS=NO
                         fi
 
-                        if [[ $(not ${SKIP_BUILD_IOS_SIMULATOR}) ]]; then
-                            call "xcodebuild" install -configuration "${PLAYGROUNDSUPPORT_BUILD_TYPE}" -workspace swift-xcode-playground-support.xcworkspace -scheme BuildScript-iOS -sdk iphonesimulator -arch x86_64 -derivedDataPath "${PLAYGROUNDSUPPORT_BUILD_DIR}"/DerivedData SWIFT_EXEC="${SWIFTC_BIN}" SWIFT_LIBRARY_PATH="${SWIFT_LIB_DIR}/\$(PLATFORM_NAME)" ONLY_ACTIVE_ARCH=NO DSTROOT="$(get_host_install_destdir ${host})" TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_PREFIX}" BUILD_PLAYGROUNDLOGGER_TESTS=NO
-                        fi
-
-                        if [[ $(not ${SKIP_BUILD_TVOS_SIMULATOR}) ]]; then
-                            call "xcodebuild" install -configuration "${PLAYGROUNDSUPPORT_BUILD_TYPE}" -workspace swift-xcode-playground-support.xcworkspace -scheme BuildScript-tvOS -sdk appletvsimulator -arch x86_64 -derivedDataPath "${PLAYGROUNDSUPPORT_BUILD_DIR}"/DerivedData SWIFT_EXEC="${SWIFTC_BIN}" SWIFT_LIBRARY_PATH="${SWIFT_LIB_DIR}/\$(PLATFORM_NAME)" ONLY_ACTIVE_ARCH=NO DSTROOT="$(get_host_install_destdir ${host})" TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_PREFIX}" BUILD_PLAYGROUNDLOGGER_TESTS=NO
-                        fi
                         popd
                         continue
                         ;;

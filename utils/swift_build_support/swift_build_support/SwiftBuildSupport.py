@@ -179,18 +179,6 @@ def get_preset_options(substitutions, preset_file_names, preset_name):
         for sdk in sdks_to_configure:
             if sdk == "OSX":
                 tgts += StdlibDeploymentTarget.OSX.targets
-            elif sdk == "IOS":
-                tgts += StdlibDeploymentTarget.iOS.targets
-            elif sdk == "IOS_SIMULATOR":
-                tgts += StdlibDeploymentTarget.iOSSimulator.targets
-            elif sdk == "TVOS":
-                tgts += StdlibDeploymentTarget.AppleTV.targets
-            elif sdk == "TVOS_SIMULATOR":
-                tgts += StdlibDeploymentTarget.AppleTVSimulator.targets
-            elif sdk == "WATCHOS":
-                tgts += StdlibDeploymentTarget.AppleWatch.targets
-            elif sdk == "WATCHOS_SIMULATOR":
-                tgts += StdlibDeploymentTarget.AppleWatchSimulator.targets
 
         build_script_opts.append("--stdlib-deployment-targets=" +
                                  " ".join([tgt.name for tgt in tgts]))

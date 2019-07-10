@@ -115,28 +115,12 @@ def _apply_default_arguments(args):
     if args.cmake_generator is None:
         args.cmake_generator = 'Ninja'
 
-    # --ios-all etc are not supported by open-source Swift.
-    if args.ios_all:
-        raise ValueError('error: --ios-all is unavailable in open-source '
-                         'Swift.\nUse --ios to skip iOS device tests.')
-
-    if args.tvos_all:
-        raise ValueError('error: --tvos-all is unavailable in open-source '
-                         'Swift.\nUse --tvos to skip tvOS device tests.')
-
-    if args.watchos_all:
-        raise ValueError('error: --watchos-all is unavailable in open-source '
-                         'Swift.\nUse --watchos to skip watchOS device tests.')
-
     # Propagate global --skip-build
     if args.skip_build:
         args.build_linux = False
         args.build_freebsd = False
         args.build_cygwin = False
         args.build_osx = False
-        args.build_ios = False
-        args.build_tvos = False
-        args.build_watchos = False
         args.build_android = False
         args.build_vexos = False
         args.build_benchmarks = False
@@ -151,26 +135,12 @@ def _apply_default_arguments(args):
         args.build_libicu = False
         args.build_playgroundsupport = False
 
-    # --skip-{ios,tvos,watchos} or --skip-build-{ios,tvos,watchos} are
-    # merely shorthands for --skip-build-{**os}-{device,simulator}
-    if not args.ios or not args.build_ios:
-        args.build_ios_device = False
-        args.build_ios_simulator = False
-
-    if not args.tvos or not args.build_tvos:
-        args.build_tvos_device = False
-        args.build_tvos_simulator = False
-
-    if not args.watchos or not args.build_watchos:
-        args.build_watchos_device = False
-        args.build_watchos_simulator = False
-
     if not args.android or not args.build_android:
         args.build_android = False
 
     if not args.vexos or not args.build_vexos:
         args.build_vexos = False
-        
+
     # --test-paths implies --test and/or --validation-test
     # depending on what directories/files have been specified.
     if args.test_paths:
@@ -203,44 +173,10 @@ def _apply_default_arguments(args):
         args.test_freebsd = False
         args.test_cygwin = False
         args.test_osx = False
-        args.test_ios = False
-        args.test_tvos = False
-        args.test_watchos = False
         args.test_android = False
         args.test_vexos = False
         args.test_indexstoredb = False
         args.test_sourcekitlsp = False
-
-    # --skip-test-ios is merely a shorthand for host and simulator tests.
-    if not args.test_ios:
-        args.test_ios_host = False
-        args.test_ios_simulator = False
-    # --skip-test-tvos is merely a shorthand for host and simulator tests.
-    if not args.test_tvos:
-        args.test_tvos_host = False
-        args.test_tvos_simulator = False
-    # --skip-test-watchos is merely a shorthand for host and simulator
-    # --tests.
-    if not args.test_watchos:
-        args.test_watchos_host = False
-        args.test_watchos_simulator = False
-
-    # --skip-build-{ios,tvos,watchos}-{device,simulator} implies
-    # --skip-test-{ios,tvos,watchos}-{host,simulator}
-    if not args.build_ios_device:
-        args.test_ios_host = False
-    if not args.build_ios_simulator:
-        args.test_ios_simulator = False
-
-    if not args.build_tvos_device:
-        args.test_tvos_host = False
-    if not args.build_tvos_simulator:
-        args.test_tvos_simulator = False
-
-    if not args.build_watchos_device:
-        args.test_watchos_host = False
-    if not args.build_watchos_simulator:
-        args.test_watchos_simulator = False
 
     if not args.build_android:
         args.test_android = False
@@ -257,9 +193,6 @@ def _apply_default_arguments(args):
         args.test_vexos_host = False
 
     if not args.host_test:
-        args.test_ios_host = False
-        args.test_tvos_host = False
-        args.test_watchos_host = False
         args.test_android_host = False
         args.test_vexos_host = False
 
@@ -309,31 +242,6 @@ def create_argument_parser():
     option('--build-runtime-with-host-compiler', toggle_true,
            help='Use the host compiler, not the self-built one to compile the '
                 'Swift runtime')
-
-    option(['-i', '--ios'], store_true,
-           help='also build for iOS, but disallow tests that require an iOS '
-                'device')
-    option(['-I', '--ios-all'], store_true('ios_all'),
-           help='also build for iOS, and allow all iOS tests')
-    option('--skip-ios', store_false('ios'),
-           help='set to skip everything iOS-related')
-
-    option('--tvos', toggle_true,
-           help='also build for tvOS, but disallow tests that require a tvos '
-                'device')
-    option('--tvos-all', toggle_true('tvos_all'),
-           help='also build for tvOS, and allow all tvOS tests')
-    option('--skip-tvos', store_false('tvos'),
-           help='set to skip everything tvOS-related')
-
-    option('--watchos', toggle_true,
-           help='also build for watchOS, but disallow tests that require an '
-                'watchOS device')
-    option('--watchos-all', toggle_true('watchos_all'),
-           help='also build for Apple watchOS, and allow all Apple watchOS '
-                'tests')
-    option('--skip-watchos', store_false('watchos'),
-           help='set to skip everything watchOS-related')
 
     option('--android', toggle_true,
            help='also build for Android')
@@ -437,18 +345,6 @@ def create_argument_parser():
            default=defaults.DARWIN_DEPLOYMENT_VERSION_OSX,
            metavar='MAJOR.MINOR',
            help='minimum deployment target version for OS X')
-    option('--darwin-deployment-version-ios', store,
-           default=defaults.DARWIN_DEPLOYMENT_VERSION_IOS,
-           metavar='MAJOR.MINOR',
-           help='minimum deployment target version for iOS')
-    option('--darwin-deployment-version-tvos', store,
-           default=defaults.DARWIN_DEPLOYMENT_VERSION_TVOS,
-           metavar='MAJOR.MINOR',
-           help='minimum deployment target version for tvOS')
-    option('--darwin-deployment-version-watchos', store,
-           default=defaults.DARWIN_DEPLOYMENT_VERSION_WATCHOS,
-           metavar='MAJOR.MINOR',
-           help='minimum deployment target version for watchOS')
 
     option('--extra-cmake-options', append,
            type=argparse.ShellSplitType(),
@@ -861,34 +757,6 @@ def create_argument_parser():
     option('--skip-build-osx', toggle_false('build_osx'),
            help='skip building Swift stdlibs for MacOSX')
 
-    option('--skip-build-ios', toggle_false('build_ios'),
-           help='skip building Swift stdlibs for iOS')
-    option('--skip-build-ios-device', toggle_false('build_ios_device'),
-           help='skip building Swift stdlibs for iOS devices '
-                '(i.e. build simulators only)')
-    option('--skip-build-ios-simulator', toggle_false('build_ios_simulator'),
-           help='skip building Swift stdlibs for iOS simulator '
-                '(i.e. build devices only)')
-
-    option('--skip-build-tvos', toggle_false('build_tvos'),
-           help='skip building Swift stdlibs for tvOS')
-    option('--skip-build-tvos-device', toggle_false('build_tvos_device'),
-           help='skip building Swift stdlibs for tvOS devices '
-                '(i.e. build simulators only)')
-    option('--skip-build-tvos-simulator', toggle_false('build_tvos_simulator'),
-           help='skip building Swift stdlibs for tvOS simulator '
-                '(i.e. build devices only)')
-
-    option('--skip-build-watchos', toggle_false('build_watchos'),
-           help='skip building Swift stdlibs for watchOS')
-    option('--skip-build-watchos-device', toggle_false('build_watchos_device'),
-           help='skip building Swift stdlibs for watchOS devices '
-                '(i.e. build simulators only)')
-    option('--skip-build-watchos-simulator',
-           toggle_false('build_watchos_simulator'),
-           help='skip building Swift stdlibs for watchOS simulator '
-                '(i.e. build devices only)')
-
     option('--skip-build-android', toggle_false('build_android'),
            help='skip building Swift stdlibs for Android')
 
@@ -903,45 +771,6 @@ def create_argument_parser():
 
     # -------------------------------------------------------------------------
     in_group('Skip testing specified targets')
-
-    option('--skip-test-ios',
-           toggle_false('test_ios'),
-           help='skip testing all iOS targets. Equivalent to specifying both '
-                '--skip-test-ios-simulator and --skip-test-ios-host')
-    option('--skip-test-ios-simulator',
-           toggle_false('test_ios_simulator'),
-           help='skip testing iOS simulator targets')
-    option('--skip-test-ios-32bit-simulator',
-           toggle_false('test_ios_32bit_simulator'),
-           help='skip testing iOS 32 bit simulator targets')
-    option('--skip-test-ios-host',
-           toggle_false('test_ios_host'),
-           help='skip testing iOS device targets on the host machine (the '
-                'phone itself)')
-
-    option('--skip-test-tvos',
-           toggle_false('test_tvos'),
-           help='skip testing all tvOS targets. Equivalent to specifying both '
-                '--skip-test-tvos-simulator and --skip-test-tvos-host')
-    option('--skip-test-tvos-simulator',
-           toggle_false('test_tvos_simulator'),
-           help='skip testing tvOS simulator targets')
-    option('--skip-test-tvos-host',
-           toggle_false('test_tvos_host'),
-           help='skip testing tvOS device targets on the host machine (the '
-                'TV itself)')
-
-    option('--skip-test-watchos',
-           toggle_false('test_watchos'),
-           help='skip testing all tvOS targets. Equivalent to specifying both '
-                '--skip-test-watchos-simulator and --skip-test-watchos-host')
-    option('--skip-test-watchos-simulator',
-           toggle_false('test_watchos_simulator'),
-           help='skip testing watchOS simulator targets')
-    option('--skip-test-watchos-host',
-           toggle_false('test_watchos_host'),
-           help='skip testing watchOS device targets on the host machine (the '
-                'watch itself)')
 
     option('--skip-test-android',
            toggle_false('test_android'),

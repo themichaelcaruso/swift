@@ -92,18 +92,6 @@ getDarwinLibraryNameSuffixForTriple(const llvm::Triple &triple,
   switch (effectiveKind) {
   case DarwinPlatformKind::MacOS:
     return "osx";
-  case DarwinPlatformKind::IPhoneOS:
-    return "ios";
-  case DarwinPlatformKind::IPhoneOSSimulator:
-    return "iossim";
-  case DarwinPlatformKind::TvOS:
-    return "tvos";
-  case DarwinPlatformKind::TvOSSimulator:
-    return "tvossim";
-  case DarwinPlatformKind::WatchOS:
-    return "watchos";
-  case DarwinPlatformKind::WatchOSSimulator:
-    return "watchossim";
   }
   llvm_unreachable("Unsupported Darwin platform");
 }
@@ -204,20 +192,14 @@ static void addVersionString(const ArgList &inputArgs, ArgStringList &arguments,
 /// runtime that are not present on the deployment target indicated by
 /// \p triple.
 static bool wantsObjCRuntime(const llvm::Triple &triple) {
-  assert((!triple.isTvOS() || triple.isiOS()) &&
-         "tvOS is considered a kind of iOS");
 
   // When updating the versions listed here, please record the most recent
   // feature being depended on and when it was introduced:
   //
   // - Make assigning 'nil' to an NSMutableDictionary subscript delete the
   //   entry, like it does for Swift.Dictionary, rather than trap.
-  if (triple.isiOS())
-    return triple.isOSVersionLT(9);
   if (triple.isMacOSX())
     return triple.isMacOSXVersionLT(10, 11);
-  if (triple.isWatchOS())
-    return false;
   llvm_unreachable("unknown Darwin OS");
 }
 
@@ -226,7 +208,7 @@ static bool wantsObjCRuntime(const llvm::Triple &triple) {
 static Optional<std::pair<unsigned, unsigned>>
 getSwiftRuntimeCompatibilityVersionForTarget(const llvm::Triple &Triple) {
   unsigned Major, Minor, Micro;
-  
+
   if (Triple.isMacOSX()) {
     Triple.getMacOSXVersion(Major, Minor, Micro);
     if (Major == 10) {
@@ -235,20 +217,6 @@ getSwiftRuntimeCompatibilityVersionForTarget(const llvm::Triple &Triple) {
       } else {
         return None;
       }
-    } else {
-      return None;
-    }
-  } else if (Triple.isiOS()) { // includes tvOS
-    Triple.getiOSVersion(Major, Minor, Micro);
-    if (Major <= 12) {
-      return std::make_pair(5u, 0u);
-    } else {
-      return None;
-    }
-  } else if (Triple.isWatchOS()) {
-    Triple.getWatchOSVersion(Major, Minor, Micro);
-    if (Major <= 5) {
-      return std::make_pair(5u, 0u);
     } else {
       return None;
     }
@@ -432,7 +400,7 @@ toolchains::Darwin::constructInvocation(const LinkJobAction &job,
   // Link compatibility libraries, if we're deploying back to OSes that
   // have an older Swift runtime.
   Optional<std::pair<unsigned, unsigned>> runtimeCompatibilityVersion;
-  
+
   if (context.Args.hasArg(options::OPT_runtime_compatibility_version)) {
     auto value = context.Args.getLastArgValue(options::OPT_runtime_compatibility_version);
     if (value.equals("5.0")) {
@@ -446,21 +414,21 @@ toolchains::Darwin::constructInvocation(const LinkJobAction &job,
     runtimeCompatibilityVersion
                          = getSwiftRuntimeCompatibilityVersionForTarget(Triple);
   }
-  
+
   if (runtimeCompatibilityVersion) {
     if (*runtimeCompatibilityVersion <= std::make_pair(5u, 0u)) {
       // Swift 5.0 compatibility library
       SmallString<128> BackDeployLib;
       BackDeployLib.append(RuntimeLibPath);
       llvm::sys::path::append(BackDeployLib, "libswiftCompatibility50.a");
-      
+
       if (llvm::sys::fs::exists(BackDeployLib)) {
         Arguments.push_back("-force_load");
         Arguments.push_back(context.Args.MakeArgString(BackDeployLib));
       }
     }
   }
-    
+
   // Link the standard library.
   Arguments.push_back("-L");
   if (context.Args.hasFlag(options::OPT_static_stdlib,
@@ -485,22 +453,9 @@ toolchains::Darwin::constructInvocation(const LinkJobAction &job,
     getClangLibraryPath(context.Args, LibProfile);
 
     StringRef RT;
-    if (Triple.isiOS()) {
-      if (Triple.isTvOS())
-        RT = "tvos";
-      else
-        RT = "ios";
-    } else if (Triple.isWatchOS()) {
-      RT = "watchos";
-    } else {
-      assert(Triple.isMacOSX());
-      RT = "osx";
-    }
+    assert(Triple.isMacOSX());
+    RT = "osx";
 
-    StringRef Sim;
-    if (tripleIsAnySimulator(Triple)) {
-      Sim = "sim";
-    }
 
     llvm::sys::path::append(LibProfile,
                             "libclang_rt.profile_" + RT + Sim + ".a");
@@ -515,37 +470,12 @@ toolchains::Darwin::constructInvocation(const LinkJobAction &job,
   }
 
   // FIXME: Properly handle deployment targets.
-  assert(Triple.isiOS() || Triple.isWatchOS() || Triple.isMacOSX());
-  if (Triple.isiOS()) {
-    bool isiOSSimulator = tripleIsiOSSimulator(Triple);
-    if (Triple.isTvOS()) {
-      if (isiOSSimulator)
-        Arguments.push_back("-tvos_simulator_version_min");
-      else
-        Arguments.push_back("-tvos_version_min");
-    } else {
-      if (isiOSSimulator)
-        Arguments.push_back("-ios_simulator_version_min");
-      else
-        Arguments.push_back("-iphoneos_version_min");
-    }
-    unsigned major, minor, micro;
-    Triple.getiOSVersion(major, minor, micro);
-    addVersionString(context.Args, Arguments, major, minor, micro);
-  } else if (Triple.isWatchOS()) {
-    if (tripleIsWatchSimulator(Triple))
-      Arguments.push_back("-watchos_simulator_version_min");
-    else
-      Arguments.push_back("-watchos_version_min");
-    unsigned major, minor, micro;
-    Triple.getOSVersion(major, minor, micro);
-    addVersionString(context.Args, Arguments, major, minor, micro);
-  } else {
-    Arguments.push_back("-macosx_version_min");
-    unsigned major, minor, micro;
-    Triple.getMacOSXVersion(major, minor, micro);
-    addVersionString(context.Args, Arguments, major, minor, micro);
-  }
+  assert(Triple.isMacOSX());
+
+  Arguments.push_back("-macosx_version_min");
+  unsigned major, minor, micro;
+  Triple.getMacOSXVersion(major, minor, micro);
+  addVersionString(context.Args, Arguments, major, minor, micro);
 
   Arguments.push_back("-no_objc_category_merging");
 

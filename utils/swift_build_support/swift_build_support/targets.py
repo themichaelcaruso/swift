@@ -117,27 +117,6 @@ class StdlibDeploymentTarget(object):
     OSX = DarwinPlatform("macosx", archs=["x86_64"],
                          sdk_name="OSX")
 
-    iOS = DarwinPlatform("iphoneos", archs=["armv7", "armv7s", "arm64"],
-                         sdk_name="IOS")
-    iOSSimulator = DarwinPlatform("iphonesimulator", archs=["i386", "x86_64"],
-                                  sdk_name="IOS_SIMULATOR",
-                                  is_simulator=True)
-
-    # Never build/test benchmarks on iOS armv7s.
-    iOS.armv7s.supports_benchmark = False
-
-    AppleTV = DarwinPlatform("appletvos", archs=["arm64"],
-                             sdk_name="TVOS")
-    AppleTVSimulator = DarwinPlatform("appletvsimulator", archs=["x86_64"],
-                                      sdk_name="TVOS_SIMULATOR",
-                                      is_simulator=True)
-
-    AppleWatch = DarwinPlatform("watchos", archs=["armv7k"],
-                                sdk_name="WATCHOS")
-    AppleWatchSimulator = DarwinPlatform("watchsimulator", archs=["i386"],
-                                         sdk_name="WATCHOS_SIMULATOR",
-                                         is_simulator=True)
-
     Linux = Platform("linux", archs=[
         "x86_64",
         "i686",
@@ -149,6 +128,8 @@ class StdlibDeploymentTarget(object):
         "s390x"])
 
     VexOS = Platform("vexos", archs=["thumbv7"])
+
+    VexOS.thumbv7.supports_benchmark = False
 
     FreeBSD = Platform("freebsd", archs=["x86_64"])
 
@@ -163,9 +144,6 @@ class StdlibDeploymentTarget(object):
     # The list of known platforms.
     known_platforms = [
         OSX,
-        iOS, iOSSimulator,
-        AppleTV, AppleTVSimulator,
-        AppleWatch, AppleWatchSimulator,
         Linux,
         FreeBSD,
         Cygwin,
@@ -241,21 +219,7 @@ class StdlibDeploymentTarget(object):
         host_target = StdlibDeploymentTarget.host_target()
         if host_target is None:
             return None
-
-        # OS X build machines configure all Darwin platforms by default.
-        # Put iOS native targets last so that we test them last
-        # (it takes a long time).
-        if host_target == StdlibDeploymentTarget.OSX.x86_64:
-            return [host_target] + \
-                StdlibDeploymentTarget.iOSSimulator.targets + \
-                StdlibDeploymentTarget.AppleTVSimulator.targets + \
-                StdlibDeploymentTarget.AppleWatchSimulator.targets + \
-                StdlibDeploymentTarget.iOS.targets + \
-                StdlibDeploymentTarget.AppleTV.targets + \
-                StdlibDeploymentTarget.AppleWatch.targets
-        else:
-            # All other machines only configure their host stdlib by default.
-            return [host_target]
+        return [host_target]
 
     @classmethod
     def get_target_for_name(cls, name):

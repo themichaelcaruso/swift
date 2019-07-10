@@ -61,26 +61,17 @@ static bool isPlatformActiveForTarget(PlatformKind Platform,
                                       bool EnableAppExtensionRestrictions) {
   if (Platform == PlatformKind::none)
     return true;
-  
+
   if (Platform == PlatformKind::OSXApplicationExtension ||
       Platform == PlatformKind::iOSApplicationExtension)
     if (!EnableAppExtensionRestrictions)
       return false;
-  
+
   // FIXME: This is an awful way to get the current OS.
   switch (Platform) {
     case PlatformKind::OSX:
     case PlatformKind::OSXApplicationExtension:
       return Target.isMacOSX();
-    case PlatformKind::iOS:
-    case PlatformKind::iOSApplicationExtension:
-      return Target.isiOS() && !Target.isTvOS();
-    case PlatformKind::tvOS:
-    case PlatformKind::tvOSApplicationExtension:
-      return Target.isTvOS();
-    case PlatformKind::watchOS:
-    case PlatformKind::watchOSApplicationExtension:
-      return Target.isWatchOS();
     case PlatformKind::none:
       llvm_unreachable("handled above");
   }
@@ -98,24 +89,6 @@ PlatformKind swift::targetPlatform(LangOptions &LangOpts) {
     return (LangOpts.EnableAppExtensionRestrictions
                 ? PlatformKind::OSXApplicationExtension
                 : PlatformKind::OSX);
-  }
-
-  if (LangOpts.Target.isTvOS()) {
-    return (LangOpts.EnableAppExtensionRestrictions
-            ? PlatformKind::tvOSApplicationExtension
-            : PlatformKind::tvOS);
-  }
-
-  if (LangOpts.Target.isWatchOS()) {
-    return (LangOpts.EnableAppExtensionRestrictions
-            ? PlatformKind::watchOSApplicationExtension
-            : PlatformKind::watchOS);
-  }
-
-  if (LangOpts.Target.isiOS()) {
-    return (LangOpts.EnableAppExtensionRestrictions
-                ? PlatformKind::iOSApplicationExtension
-                : PlatformKind::iOS);
   }
 
   return PlatformKind::none;

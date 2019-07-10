@@ -44,16 +44,6 @@ static Platform mapToPlatform(const Triple &target) {
     return Platform::unknown;
   case Triple::MacOSX:
     return Platform::macOS;
-  case Triple::IOS:
-    if (target.isSimulatorEnvironment())
-      return Platform::iOSSimulator;
-    return Platform::iOS;
-  case Triple::TvOS:
-    return target.isSimulatorEnvironment() ? Platform::tvOSSimulator
-                                           : Platform::tvOS;
-  case Triple::WatchOS:
-    return target.isSimulatorEnvironment() ? Platform::watchOSSimulator
-                                           : Platform::watchOS;
     /*case Triple::BridgeOS:
       return Platform::bridgeOS;*/
   }

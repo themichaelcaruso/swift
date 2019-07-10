@@ -275,12 +275,6 @@ class BuildScriptInvocation(object):
             "--darwin-xcrun-toolchain", args.darwin_xcrun_toolchain,
             "--darwin-deployment-version-osx=%s" % (
                 args.darwin_deployment_version_osx),
-            "--darwin-deployment-version-ios=%s" % (
-                args.darwin_deployment_version_ios),
-            "--darwin-deployment-version-tvos=%s" % (
-                args.darwin_deployment_version_tvos),
-            "--darwin-deployment-version-watchos=%s" % (
-                args.darwin_deployment_version_watchos),
             "--cmake", toolchain.cmake,
             "--cmark-build-type", args.cmark_build_variant,
             "--llvm-build-type", args.llvm_build_variant,
@@ -451,18 +445,6 @@ class BuildScriptInvocation(object):
             impl_args += ["--skip-build-cygwin"]
         if not args.build_osx:
             impl_args += ["--skip-build-osx"]
-        if not args.build_ios_device:
-            impl_args += ["--skip-build-ios-device"]
-        if not args.build_ios_simulator:
-            impl_args += ["--skip-build-ios-simulator"]
-        if not args.build_tvos_device:
-            impl_args += ["--skip-build-tvos-device"]
-        if not args.build_tvos_simulator:
-            impl_args += ["--skip-build-tvos-simulator"]
-        if not args.build_watchos_device:
-            impl_args += ["--skip-build-watchos-device"]
-        if not args.build_watchos_simulator:
-            impl_args += ["--skip-build-watchos-simulator"]
         if not args.build_android:
             impl_args += ["--skip-build-android"]
         if not args.build_vexos:
@@ -491,20 +473,6 @@ class BuildScriptInvocation(object):
             impl_args += ["--skip-test-cygwin"]
         if not args.test_osx:
             impl_args += ["--skip-test-osx"]
-        if not args.test_ios_host:
-            impl_args += ["--skip-test-ios-host"]
-        if not args.test_ios_simulator:
-            impl_args += ["--skip-test-ios-simulator"]
-        if not args.test_ios_32bit_simulator:
-            impl_args += ["--skip-test-ios-32bit-simulator"]
-        if not args.test_tvos_host:
-            impl_args += ["--skip-test-tvos-host"]
-        if not args.test_tvos_simulator:
-            impl_args += ["--skip-test-tvos-simulator"]
-        if not args.test_watchos_host:
-            impl_args += ["--skip-test-watchos-host"]
-        if not args.test_watchos_simulator:
-            impl_args += ["--skip-test-watchos-simulator"]
         if not args.test_android:
             impl_args += ["--skip-test-android"]
         if not args.test_android_host:
