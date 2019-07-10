@@ -1728,7 +1728,6 @@ PlatformAvailability::PlatformAvailability(LangOptions &langOpts)
     : platformKind(targetPlatform(langOpts)) {
   switch (platformKind) {
   case PlatformKind::OSX:
-  case PlatformKind::OSXApplicationExtension:
     deprecatedAsUnavailableMessage =
         "APIs deprecated as of macOS 10.9 and earlier are unavailable in Swift";
     break;
@@ -1742,8 +1741,6 @@ bool PlatformAvailability::isPlatformRelevant(StringRef name) const {
   switch (platformKind) {
   case PlatformKind::OSX:
     return name == "macos";
-  case PlatformKind::OSXApplicationExtension:
-    return name == "macos" || name == "macos_app_extension";
   case PlatformKind::none:
     return false;
   }

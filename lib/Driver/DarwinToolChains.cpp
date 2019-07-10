@@ -456,6 +456,7 @@ toolchains::Darwin::constructInvocation(const LinkJobAction &job,
     assert(Triple.isMacOSX());
     RT = "osx";
 
+    StringRef Sim;
 
     llvm::sys::path::append(LibProfile,
                             "libclang_rt.profile_" + RT + Sim + ".a");

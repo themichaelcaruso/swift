@@ -125,7 +125,7 @@ SDKNodeDeclOperator::SDKNodeDeclOperator(SDKNodeInitInfo Info):
 SDKNodeDeclTypeAlias::SDKNodeDeclTypeAlias(SDKNodeInitInfo Info):
   SDKNodeDecl(Info, SDKNodeKind::DeclTypeAlias) {}
 
-SDKNodeDeclVar::SDKNodeDeclVar(SDKNodeInitInfo Info): 
+SDKNodeDeclVar::SDKNodeDeclVar(SDKNodeInitInfo Info):
   SDKNodeDecl(Info, SDKNodeKind::DeclVar), IsLet(Info.IsLet),
   HasStorage(Info.HasStorage), HasDidSet(Info.HasDidset),
   HasWillSet(Info.HasWillset) {}
@@ -142,7 +142,7 @@ SDKNodeDeclFunction::SDKNodeDeclFunction(SDKNodeInitInfo Info):
 SDKNodeDeclConstructor::SDKNodeDeclConstructor(SDKNodeInitInfo Info):
   SDKNodeDeclAbstractFunc(Info, SDKNodeKind::DeclConstructor) {}
 
-SDKNodeDeclGetter::SDKNodeDeclGetter(SDKNodeInitInfo Info): 
+SDKNodeDeclGetter::SDKNodeDeclGetter(SDKNodeInitInfo Info):
   SDKNodeDeclAbstractFunc(Info, SDKNodeKind::DeclGetter) {}
 
 SDKNodeDeclSetter::SDKNodeDeclSetter(SDKNodeInitInfo Info):
@@ -562,7 +562,7 @@ SDKNode* SDKNode::constructSDKNode(SDKContext &Ctx,
   NodeVector Conformances;
 
   for (auto &Pair : *Node) {
-    auto keyString = GetScalarString(Pair.getKey()); 
+    auto keyString = GetScalarString(Pair.getKey());
     if (auto keyKind = parseKeyKind(keyString)) {
       switch(*keyKind) {
       case KeyKind::KK_kind:
@@ -1189,9 +1189,6 @@ SDKNodeInitInfo::SDKNodeInitInfo(SDKContext &Ctx, Decl *D):
       ModuleName(D->getModuleContext()->getName().str()),
       GenericSig(printGenericSignature(Ctx, D)),
       IntromacOS(Ctx.getPlatformIntroVersion(D, PlatformKind::OSX)),
-      IntroiOS(Ctx.getPlatformIntroVersion(D, PlatformKind::iOS)),
-      IntrotvOS(Ctx.getPlatformIntroVersion(D, PlatformKind::tvOS)),
-      IntrowatchOS(Ctx.getPlatformIntroVersion(D, PlatformKind::watchOS)),
       Introswift(Ctx.getLanguageIntroVersion(D)),
       IsImplicit(D->isImplicit()),
       IsDeprecated(D->getAttrs().getDeprecated(D->getASTContext())),

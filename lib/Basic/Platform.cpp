@@ -17,29 +17,6 @@
 
 using namespace swift;
 
-DarwinPlatformKind swift::getDarwinPlatformKind(const llvm::Triple &triple) {
-  if (triple.isMacOSX())
-    return DarwinPlatformKind::MacOS;
-
-  llvm_unreachable("Unsupported Darwin platform");
-}
-
-DarwinPlatformKind swift::getNonSimulatorPlatform(DarwinPlatformKind platform) {
-  switch (platform) {
-  case DarwinPlatformKind::MacOS:
-    return DarwinPlatformKind::MacOS;
-  }
-  llvm_unreachable("Unsupported Darwin platform");
-}
-
-static StringRef getPlatformNameForDarwin(const DarwinPlatformKind platform) {
-  switch (platform) {
-  case DarwinPlatformKind::MacOS:
-    return "macosx";
-  }
-  llvm_unreachable("Unsupported Darwin platform");
-}
-
 StringRef swift::getPlatformNameForTriple(const llvm::Triple &triple) {
   switch (triple.getOS()) {
   case llvm::Triple::UnknownOS:
@@ -70,7 +47,7 @@ StringRef swift::getPlatformNameForTriple(const llvm::Triple &triple) {
     return "";
   case llvm::Triple::Darwin:
   case llvm::Triple::MacOSX:
-    return getPlatformNameForDarwin(getDarwinPlatformKind(triple));
+    return "macosx";
   case llvm::Triple::Linux:
     return triple.isAndroid() ? "android" : "linux";
   case llvm::Triple::FreeBSD:
@@ -91,6 +68,8 @@ StringRef swift::getPlatformNameForTriple(const llvm::Triple &triple) {
     return "ps4";
   case llvm::Triple::Haiku:
     return "haiku";
+  default:
+    llvm_unreachable("unsupported OS");
   }
   llvm_unreachable("unsupported OS");
 }
@@ -196,12 +175,6 @@ static Optional<StringRef>
 getEnvironmentForAppleTargetSpecificModuleTriple(const llvm::Triple &triple) {
   auto tripleEnvironment = triple.getEnvironmentName();
 
-  // If the environment is empty, infer a "simulator" environment based on the
-  // OS and architecture combination. This feature is deprecated and exists for
-  // backwards compatibility only; build systems should pass the "simulator"
-  // environment explicitly if they know they're building for a simulator.
-  if (tripleEnvironment == "" && swift::tripleIsAnySimulator(triple))
-    return StringRef("simulator");
 
   return llvm::StringSwitch<Optional<StringRef>>(tripleEnvironment)
               .Cases("unknown", "", None)

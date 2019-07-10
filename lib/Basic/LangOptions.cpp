@@ -173,12 +173,6 @@ std::pair<bool, bool> LangOptions::setTarget(llvm::Triple triple) {
   // Set the "os" platform condition.
   if (Target.isMacOSX())
     addPlatformConditionValue(PlatformConditionKind::OS, "OSX");
-  else if (Target.isTvOS())
-    addPlatformConditionValue(PlatformConditionKind::OS, "tvOS");
-  else if (Target.isWatchOS())
-    addPlatformConditionValue(PlatformConditionKind::OS, "watchOS");
-  else if (Target.isiOS())
-    addPlatformConditionValue(PlatformConditionKind::OS, "iOS");
   else if (Target.isAndroid())
     addPlatformConditionValue(PlatformConditionKind::OS, "Android");
   else if (Target.isOSLinux())
@@ -257,19 +251,11 @@ std::pair<bool, bool> LangOptions::setTarget(llvm::Triple triple) {
     llvm_unreachable("undefined architecture endianness");
   }
 
-  // Set the "runtime" platform condition.
-  if (EnableObjCInterop)
-    addPlatformConditionValue(PlatformConditionKind::Runtime, "_ObjC");
-  else
     addPlatformConditionValue(PlatformConditionKind::Runtime, "_Native");
 
   // Set the "targetEnvironment" platform condition if targeting a simulator
   // environment. Otherwise _no_ value is present for targetEnvironment; it's
   // an optional disambiguating refinement of the triple.
-  if (swift::tripleIsAnySimulator(Target))
-    addPlatformConditionValue(PlatformConditionKind::TargetEnvironment,
-                              "simulator");
-
   // If you add anything to this list, change the default size of
   // PlatformConditionValues to not require an extra allocation
   // in the common case.
@@ -280,10 +266,6 @@ std::pair<bool, bool> LangOptions::setTarget(llvm::Triple triple) {
 bool LangOptions::doesTargetSupportObjCMetadataUpdateCallback() const {
   if (Target.isMacOSX())
     return !Target.isMacOSXVersionLT(10, 14, 4);
-  if (Target.isiOS()) // also returns true on tvOS
-    return !Target.isOSVersionLT(12, 2);
-  if (Target.isWatchOS())
-    return !Target.isOSVersionLT(5, 2);
 
   // If we're running on a non-Apple platform, we still want to allow running
   // tests that -enable-objc-interop.

@@ -482,28 +482,10 @@ static std::pair<StringRef, clang::VersionTuple>
 getOSAndVersionForDiagnostics(const llvm::Triple &triple) {
   StringRef osName;
   unsigned major, minor, micro;
-  if (triple.isMacOSX()) {
-    // macOS triples represent their versions differently, so we have to use the
-    // special accessor.
-    triple.getMacOSXVersion(major, minor, micro);
-    osName = swift::prettyPlatformString(PlatformKind::OSX);
-  } else {
-    triple.getOSVersion(major, minor, micro);
-    if (triple.isWatchOS()) {
-      osName = swift::prettyPlatformString(PlatformKind::watchOS);
-    } else if (triple.isTvOS()) {
-      assert(triple.isiOS() &&
-             "LLVM treats tvOS as a kind of iOS, so tvOS is checked first");
-      osName = swift::prettyPlatformString(PlatformKind::tvOS);
-    } else if (triple.isiOS()) {
-      osName = swift::prettyPlatformString(PlatformKind::iOS);
-    } else {
-      assert(!triple.isOSDarwin() && "unknown Apple OS");
-      // Fallback to the LLVM triple name. This isn't great (it won't be
-      // capitalized or anything), but it's better than nothing.
-      osName = triple.getOSName();
-    }
-  }
+  // macOS triples represent their versions differently, so we have to use the
+  // special accessor.
+  triple.getMacOSXVersion(major, minor, micro);
+  osName = swift::prettyPlatformString(PlatformKind::OSX);
 
   assert(!osName.empty());
   clang::VersionTuple version;
@@ -949,7 +931,7 @@ void SerializedASTFile::lookupValue(ModuleDecl::AccessPathTy accessPath,
                                     SmallVectorImpl<ValueDecl*> &results) const{
   if (!ModuleDecl::matchesAccessPath(accessPath, name))
     return;
-  
+
   File.lookupValue(name, results);
 }
 

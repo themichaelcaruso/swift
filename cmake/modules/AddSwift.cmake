@@ -518,7 +518,7 @@ function(_add_variant_link_flags)
       list(APPEND result "-fuse-ld=lld")
     elseif(SWIFT_ENABLE_GOLD_LINKER AND
        "${SWIFT_SDK_${LFLAGS_SDK}_OBJECT_FORMAT}" STREQUAL "ELF")
-      list(APPEND result "-fuse-ld=gold")
+      #list(APPEND result "-fuse-ld=gold")
     endif()
   endif()
 
