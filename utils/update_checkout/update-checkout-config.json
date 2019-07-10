@@ -5,7 +5,7 @@
         "llvm": {
             "remote": { "id": "themichaelcaruso/swift-llvm" } },
         "clang": {
-            "remote": { "id": "apple/swift-clang" } },
+            "remote": { "id": "themichaelcaruso/swift-clang" } },
         "swift": {
             "remote": { "id": "themichaelcaruso/swift" } },
         "lldb": {

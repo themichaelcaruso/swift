@@ -547,6 +547,11 @@ static Expr *findAnyLikelySimulatorEnvironmentTest(Expr *Condition) {
   // unwieldy. If field evidence shows people using other variants, possibly add
   // them here.
 
+  auto isSimulatorPlatformOSTest = [](Expr *E) -> bool {
+    return isPlatformConditionDisjunction(
+      E, PlatformConditionKind::OS, {"iOS", "tvOS", "watchOS"});
+  };
+
   auto isSimulatorPlatformArchTest = [](Expr *E) -> bool {
     return isPlatformConditionDisjunction(
       E, PlatformConditionKind::Arch, {"i386", "x86_64"});
