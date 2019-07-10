@@ -102,7 +102,7 @@ Manager, building for various platforms, running tests after builds, and more.
 
 To build for VexOS, run:
 
-    ./utils/build-script -R --vexos --vex-sdk ~/sdk  --skip-build-osx --build-swift-dynamic-sdk-overlay=0 --no-swift-stdlib-assertions --build-swift-static-stdlib  --build-swift-dynamic-stdlib=0
+    ./utils/build-script -R --vexos --vex-sdk ~/sdk  --build-swift-static-stdlib=1  --build-swift-dynamic-stdlib=0  --build-swift-dynamic-sdk-overlay=0   --build-swift-static-sdk-overlay=0 --skip-build-osx --cross-compile-hosts vexos-thumbv7
 
 #### Build Products
 

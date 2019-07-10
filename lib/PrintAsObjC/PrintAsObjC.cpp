@@ -860,27 +860,6 @@ private:
       case PlatformKind::OSX:
         plat = "macos";
         break;
-      case PlatformKind::iOS:
-        plat = "ios";
-        break;
-      case PlatformKind::tvOS:
-        plat = "tvos";
-        break;
-      case PlatformKind::watchOS:
-        plat = "watchos";
-        break;
-      case PlatformKind::OSXApplicationExtension:
-        plat = "macos_app_extension";
-        break;
-      case PlatformKind::iOSApplicationExtension:
-        plat = "ios_app_extension";
-        break;
-      case PlatformKind::tvOSApplicationExtension:
-        plat = "tvos_app_extension";
-        break;
-      case PlatformKind::watchOSApplicationExtension:
-        plat = "watchos_app_extension";
-        break;
       case PlatformKind::none:
         llvm_unreachable("handled above");
       }
