@@ -261,8 +261,7 @@ Driver::buildToolChain(const llvm::opt::InputArgList &ArgList) {
   case llvm::Triple::Haiku:
     return llvm::make_unique<toolchains::GenericUnix>(*this, target);
   default:
-    Diags.diagnose(SourceLoc(), diag::error_unknown_target,
-                   ArgList.getLastArg(options::OPT_target)->getValue());
+    return llvm::make_unique<toolchains::VexOS>(*this, target);
     break;
   }
   return nullptr;

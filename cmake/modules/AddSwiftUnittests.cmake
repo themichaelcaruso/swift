@@ -47,7 +47,7 @@ function(add_swift_unittest test_dirname)
       LINK_FLAGS " -latomic")
   endif()
 
-  find_program(LDLLD_PATH "ld.lld")
+  find_program(LDLLD_PATH "ld64.lld")
   # Strangely, macOS finds lld and then can't find it when using -fuse-ld=
   if(SWIFT_ENABLE_LLD_LINKER AND LDLLD_PATH AND NOT APPLE)
     set_property(TARGET "${test_dirname}" APPEND_STRING PROPERTY

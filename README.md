@@ -96,6 +96,12 @@ cloning over SSH may provide a better experience (which requires
 
 ### Building Swift
 
+To compile on Mac, you must link the ARM linker with ld.lld as follows:
+
+    ln -s /usr/local/bin/arm-none-eabi-ld /usr/local/bin/ld/lld
+
+You may need to disable system integrity protection to do this on Mac. 
+
 The `build-script` is a high-level build automation script that supports basic
 options such as building a Swift-compatible LLDB, building the Swift Package
 Manager, building for various platforms, running tests after builds, and more.

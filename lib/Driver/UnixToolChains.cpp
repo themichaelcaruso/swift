@@ -320,6 +320,17 @@ toolchains::GenericUnix::constructInvocation(const LinkJobAction &job,
   return II;
 }
 
+
+std::string toolchains::VexOS::getDefaultLinker() const {
+  // Cygwin uses the default BFD linker, even on ARM.
+  return "ld";
+}
+
+std::string toolchains::VexOS::getTargetForLinker() const {
+  return "thumbv7-none-eabi";
+}
+
+
 std::string toolchains::Android::getTargetForLinker() const {
   const llvm::Triple &T = getTriple();
   if (T.getArch() == llvm::Triple::arm &&
@@ -330,8 +341,8 @@ std::string toolchains::Android::getTargetForLinker() const {
   return T.str();
 }
 
-
 bool toolchains::Android::shouldProvideRPathToLinker() const { return false; }
+
 
 std::string toolchains::Cygwin::getDefaultLinker() const {
   // Cygwin uses the default BFD linker, even on ARM.

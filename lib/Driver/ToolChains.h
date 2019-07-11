@@ -114,16 +114,16 @@ public:
   ~Cygwin() = default;
 };
 
-class LLVM_LIBRARY_VISIBILITY VexOS : public ToolChain {
+class LLVM_LIBRARY_VISIBILITY VexOS : public GenericUnix {
 protected:
-  InvocationInfo constructInvocation(const LinkJobAction &job,
-                                     const JobContext &context) const override;
+  std::string getDefaultLinker() const override;
+
+  std::string getTargetForLinker() const override;
 
 public:
-  VexOS(const Driver &D, const llvm::Triple &Triple) : ToolChain(D, Triple) {}
+  VexOS(const Driver &D, const llvm::Triple &Triple)
+      : GenericUnix(D, Triple) {}
   ~VexOS() = default;
-  std::string sanitizerRuntimeLibName(StringRef Sanitizer,
-                                      bool shared = true) const override;
 };
 
 } // end namespace toolchains
