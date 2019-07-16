@@ -515,9 +515,6 @@ function set_build_options_for_host() {
             llvm_cmake_options=(
                 -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING="${cmake_osx_deployment_target}"
                 -DCMAKE_OSX_SYSROOT:PATH="$(xcrun --sdk ${xcrun_sdk_name} --show-sdk-path)"
-                -DCOMPILER_RT_ENABLE_IOS:BOOL=FALSE
-                -DCOMPILER_RT_ENABLE_WATCHOS:BOOL=FALSE
-                -DCOMPILER_RT_ENABLE_TVOS:BOOL=FALSE
                 -DSANITIZER_MIN_OSX_VERSION="${cmake_osx_deployment_target}"
                 -DLLVM_ENABLE_MODULES:BOOL="$(true_false ${LLVM_ENABLE_MODULES})"
             )
@@ -566,20 +563,6 @@ function set_build_options_for_host() {
     llvm_cmake_options+=(
         -DLLVM_TOOL_COMPILER_RT_BUILD:BOOL="$(false_true ${SKIP_BUILD_COMPILER_RT})"
         -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL="$(false_true ${SKIP_BUILD_COMPILER_RT})"
-        -DCMAKE_CROSSCOMPILING=true
-        -DLLVM_TARGET_ARCH=ARM
-        -DLLVM_TARGETS_TO_BUILD=ARM
-        -DLLVM_DEFAULT_TARGET_TRIPLE=thumbv7-none-eabi
-        -DCOMPILER_RT_BUILD_BUILTINS=ON
-        -DCOMPILER_RT_BAREMETAL_BUILD=ON
-        -DCMAKE_C_COMPILER="/usr/local/bin/arm-none-eabi-gcc"
-        -DCMAKE_C_COMPILER_TARGET="thumbv7-none-eabi"
-        -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON
-        -DCOMPILER_RT_TEST_COMPILER_CFLAGS="-mthumb -mfloat-abi=soft -mfpu=none --specs=nosys.specs"
-        -DCMAKE_SYSTEM_NAME="Generic"
-        -DHAVE_FLAG_SEARCH_PATHS_FIRST=0
-        -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY
-        -DCOMPILER_RT_OS_DIR="baremetal"
     )
 
     # If we are asked to not generate test targets for LLVM and or Swift,
@@ -1362,7 +1345,7 @@ function calculate_targets_for_host() {
 }
 
 
-COMMON_C_FLAGS=""
+COMMON_C_FLAGS=" -Wno-unknown-warning-option -Werror=unguarded-availability-new"
 
 # Convert to an array.
 eval COMMON_CMAKE_OPTIONS=(${COMMON_CMAKE_OPTIONS})
